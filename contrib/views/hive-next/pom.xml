@@ -256,7 +256,7 @@
         <configuration>
           <nodeVersion>v4.5.0</nodeVersion>
           <npmVersion>2.15.0</npmVersion>
-          <workingDirectory>src/main/resources/ui/hive-web/</workingDirectory>
+          <workingDirectory>src/main/resources/ui/</workingDirectory>
         </configuration>
         <executions>
           <execution>
@@ -290,7 +290,7 @@
               <goal>exec</goal>
             </goals>
             <configuration>
-              <workingDirectory>${basedir}/src/main/resources/ui/hive-web</workingDirectory>
+              <workingDirectory>${basedir}/src/main/resources/ui</workingDirectory>
               <executable>node/node</executable>
               <arguments>
                 <argument>node_modules/.bin/ember</argument>
@@ -353,16 +353,16 @@
         </includes>
       </resource>
       <resource>
-        <directory>src/main/resources/ui/hive-web/dist</directory>
+        <directory>src/main/resources/ui/dist</directory>
         <filtering>false</filtering>
       </resource>
       <resource>
-        <directory>src/main/resources/ui/hive-web/bower_components/polestar</directory>
+        <directory>src/main/resources/ui/bower_components/polestar</directory>
         <filtering>false</filtering>
         <targetPath>polestar</targetPath>
       </resource>
       <resource>
-        <directory>src/main/resources/ui/hive-web/bower_components/voyager</directory>
+        <directory>src/main/resources/ui/bower_components/voyager</directory>
         <filtering>false</filtering>
         <targetPath>voyager</targetPath>
       </resource>
