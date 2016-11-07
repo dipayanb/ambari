@@ -1,0 +1,13 @@
+@import 'bootstrap-overrides';
+@import 'fonts';
+@import 'bootstrap';
+
+
+.nav-tabs {
+  li {
+    a {
+      font-weight: bold;
+      color: darken($body-bg, 50%);
+    }
+  }
+}
