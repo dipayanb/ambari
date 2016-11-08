@@ -7,22 +7,8 @@ $border-radius-small:       2px;
 
 
 // nav-tabs
-//=== Shared nav styles
 $nav-link-padding:                          10px 20px !default;
-//$nav-link-hover-bg:                         $gray-lighter !default;
-
-//$nav-disabled-link-color:                   $gray-light !default;
-//$nav-disabled-link-hover-color:             $gray-light !default;
-
-//== Tabs
 $nav-tabs-border-color:                     darken($body-bg, 15%);
-
-//$nav-tabs-link-hover-border-color:          $gray-lighter !default;
 $nav-tabs-link-hover-border-color:          darken($body-bg, 15%);
-
 $nav-tabs-active-link-hover-bg:             #fff;
-//$nav-tabs-active-link-hover-color:          $gray !default;
 $nav-tabs-active-link-hover-border-color:   darken($body-bg, 15%);
-
-//$nav-tabs-justified-link-border-color:            #ddd !default;
-//$nav-tabs-justified-active-link-border-color:     $body-bg !default;
