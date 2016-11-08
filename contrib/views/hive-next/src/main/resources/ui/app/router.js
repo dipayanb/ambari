@@ -7,6 +7,12 @@ const Router = Ember.Router.extend({
 });
 
 Router.map(function() {
+  this.route('jobs');
+  this.route('udfs');
+  this.route('tables');
+  this.route('settings');
+  this.route('notifications');
+  this.route('savedqueries');
 });
 
 export default Router;

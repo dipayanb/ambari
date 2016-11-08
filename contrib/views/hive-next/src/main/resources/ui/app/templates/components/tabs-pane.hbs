@@ -1,6 +1,3 @@
-<li role="presentation"><a href="#">{{fa-icon "paper-plane"}} JOBS</a></li>
-<li role="presentation"><a href="#">{{fa-icon "table"}} TABLES</a></li>
-<li role="presentation" class="active"><a href="#">{{fa-icon "paperclip"}} SAVED QUERIES</a></li>
-<li role="presentation"><a href="#">{{fa-icon "puzzle-piece"}} UDFs</a></li>
-<li role="presentation"><a href="#">{{fa-icon "cog"}} SETTINGS</a></li>
-<li role="presentation" class="pull-right"><a href="#">{{fa-icon "bell"}} NOTIFICATIONS</a></li>
+{{#each tabs as |tab|}}
+  {{yield tab}}
+{{/each}}
