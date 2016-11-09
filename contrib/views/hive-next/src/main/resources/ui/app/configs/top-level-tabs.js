@@ -1,3 +1,4 @@
+import Ember from 'ember';
 
 let topLevelTabs = [
   Ember.Object.create({

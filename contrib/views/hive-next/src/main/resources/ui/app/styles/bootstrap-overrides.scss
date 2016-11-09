@@ -12,3 +12,22 @@ $nav-tabs-border-color:                     darken($body-bg, 15%);
 $nav-tabs-link-hover-border-color:          darken($body-bg, 15%);
 $nav-tabs-active-link-hover-bg:             #fff;
 $nav-tabs-active-link-hover-border-color:   darken($body-bg, 15%);
+
+@import 'bootstrap';
+
+.nav-tabs {
+  &.inverse {
+    li.active {
+       a {
+         background-color: $gray-dark;
+         color: #fff;
+       }
+    }
+  }
+  li {
+    a {
+      font-weight: bold;
+      color: darken($body-bg, 50%);
+    }
+  }
+}

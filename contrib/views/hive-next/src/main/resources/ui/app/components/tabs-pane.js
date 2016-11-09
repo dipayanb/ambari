@@ -2,6 +2,8 @@ import Ember from 'ember';
 
 export default Ember.Component.extend({
   tagName: 'ul',
-  classNames: ['nav', 'nav-tabs'],
+  classNames: ['row', 'nav', 'nav-tabs'],
+  classNameBindings : ['inverse'],
+  inverse: false,
   tabs: Ember.A()
 });
