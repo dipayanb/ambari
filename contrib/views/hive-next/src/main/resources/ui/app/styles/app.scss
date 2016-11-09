@@ -11,3 +11,27 @@
     }
   }
 }
+
+.main-wrapper {
+  padding: 5px 0;
+  background-color: #fff;
+  height: 100%;
+}
+
+$database-search-background: lighten($body-bg, 10%);
+$database-search-text-color: $gray;
+.database-search {
+  color:  $database-search-text-color;
+  padding: 10px;
+  border: 1px solid darken($database-search-background, 25%);
+  background-color: $database-search-background;
+  border-collapse: collapse;
+
+  p {
+    margin-bottom: 5px;
+  }
+
+  .btn {
+    color: $database-search-text-color;
+  }
+}

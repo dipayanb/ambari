@@ -13,6 +13,7 @@ Router.map(function() {
   this.route('settings');
   this.route('notifications');
   this.route('savedqueries');
+  this.route('databases');
 });
 
 export default Router;

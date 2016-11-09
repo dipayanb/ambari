@@ -9,7 +9,7 @@ let topLevelTabs = [
   Ember.Object.create({
     name: 'tables',
     label: 'TABLES',
-    link: 'tables',
+    link: 'databases',
     faIcon: 'table'
   }),
   Ember.Object.create({

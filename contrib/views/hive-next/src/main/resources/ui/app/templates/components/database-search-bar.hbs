@@ -1,0 +1,15 @@
+<div class="col-md-2">
+  <p class="text-left text-uppercase"><strong>{{heading}}</strong></p>
+  <p class="text-left text-muted"><small>{{subHeading}}</small></p>
+</div>
+<div class="col-md-10">
+  <div class="input-group input-group-lg">
+    <input type="text" class="form-control">
+    {{#if enableSecondaryAction}}
+      <div class="input-group-btn">
+        <button type="button" class="btn btn-default" {{action 'secondaryActionClicked'}}>{{fa-icon secondaryActionFaIcon}} {{secondaryActionText}} <span class="caret"></span></button>
+      </div>
+    {{/if}}
+  </div>
+</div>
+{{yield}}
