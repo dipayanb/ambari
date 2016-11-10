@@ -28,6 +28,7 @@ import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
 import org.apache.ambari.view.ViewContext;
 import org.apache.ambari.view.hive2.actor.DeathWatch;
+import org.apache.ambari.view.hive2.actor.MetaDataManager;
 import org.apache.ambari.view.hive2.actor.OperationController;
 import org.apache.ambari.view.hive2.internal.ConnectionSupplier;
 import org.apache.ambari.view.hive2.internal.DataStorageSupplier;
@@ -46,6 +47,7 @@ public class ConnectionSystem {
   private static volatile ConnectionSystem instance = null;
   private static final Object lock = new Object();
   private static Map<String, Map<String, ActorRef>> operationControllerMap = new ConcurrentHashMap<>();
+  private final Map<String, ActorRef> metaDataManagerMap = new ConcurrentHashMap<>();
 
   // credentials map stores usernames and passwords
   private static Map<String, String> credentialsMap = new ConcurrentHashMap<>();
@@ -103,6 +105,27 @@ public class ConnectionSystem {
       }
     }
     return ref;
+  }
+
+  /**
+   * Returns one MetaDataManager actor per view instance
+   * @param context - View context
+   * @return MetaDataManager actor
+   */
+  public synchronized ActorRef getMetaDataManager(ViewContext context) {
+    SafeViewContext safeViewContext = new SafeViewContext(context);
+    String instanceName = safeViewContext.getInstanceName();
+    ActorRef metaDataManager = metaDataManagerMap.get(instanceName);
+    if(metaDataManager == null) {
+      metaDataManager = createMetaDataManager(safeViewContext);
+      metaDataManagerMap.put(instanceName, metaDataManager);
+    }
+
+    return metaDataManager;
+  }
+
+  private ActorRef createMetaDataManager(SafeViewContext safeViewContext) {
+    return actorSystem.actorOf(MetaDataManager.props(safeViewContext));
   }
 
   public synchronized void persistCredentials(String user,String password){

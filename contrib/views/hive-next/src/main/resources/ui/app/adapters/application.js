@@ -1,3 +1,4 @@
+import Ember from 'ember';
 import DS from 'ember-data';
 import ENV from 'ui/config/environment';
 
@@ -5,7 +6,7 @@ export default DS.RESTAdapter.extend({
   init: function() {
     Ember.$.ajaxSetup({
       cache: false
-    })
+    });
   },
 
   namespace: Ember.computed(function() {
@@ -21,9 +22,9 @@ export default DS.RESTAdapter.extend({
       version = '';
     }
     if(ENV.environment === 'development') {
-      return ''
+      return 'resources';
     }
-    return 'api/v1/views/' + view + version + '/instances/' + instance;
+    return 'api/v1/views/' + view + version + '/instances/' + instance + '/resources';
   }),
 
   headers: Ember.computed(function() {
