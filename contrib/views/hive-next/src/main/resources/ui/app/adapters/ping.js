@@ -7,6 +7,6 @@ export default ApplicationAdapter.extend({
   },
 
   pathForType() {
-    return "ping";
+    return "system/ping";
   }
 });

@@ -37,6 +37,7 @@
       <dependency>
       <groupId>com.google.inject</groupId>
       <artifactId>guice</artifactId>
+      <version>4.1.0</version>
     </dependency>
     <dependency>
       <groupId>com.sun.jersey.contribs</groupId>
@@ -295,6 +296,7 @@
               <arguments>
                 <argument>node_modules/.bin/ember</argument>
                 <argument>build</argument>
+                <argument>--environment=production</argument>
               </arguments>
             </configuration>
           </execution>

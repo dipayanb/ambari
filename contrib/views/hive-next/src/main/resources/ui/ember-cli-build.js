@@ -8,6 +8,9 @@ module.exports = function(defaults) {
     bootstrap: {
       // List of Bootstrap plugins to use
       plugins: []
+    },
+    fingerprint: {
+      enabled: false
     }
   });
 
