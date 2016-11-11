@@ -20,15 +20,18 @@ package org.apache.ambari.view.hive2.actor;
 
 import akka.actor.ActorRef;
 import akka.actor.Cancellable;
+import akka.actor.PoisonPill;
 import akka.actor.Props;
 import org.apache.ambari.view.ViewContext;
 import org.apache.ambari.view.hive2.actor.message.HiveMessage;
 import org.apache.ambari.view.hive2.actor.message.Ping;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import scala.concurrent.duration.Duration;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Manages the Meta Information for Hive Server. Singleton actor which stores several DatabaseManagerActor in memory for
@@ -54,16 +57,57 @@ public class MetaDataManager extends HiveActor {
 
     Object message = hiveMessage.getMessage();
     if (message instanceof Ping) {
-      handlePing((Ping)message);
+      handlePing((Ping) message);
+    } else if (message instanceof Terminate) {
+      handleTerminate((Terminate) message);
     }
-
   }
 
   private void handlePing(Ping message) {
     LOG.info("Ping message received for user: {}, instance: {}", message.getUsername(), message.getInstanceName());
+    ActorRef databaseManager = databaseManagers.get(message.getUsername());
+    if (databaseManager == null) {
+      databaseManager = createDatabaseManager();
+      databaseManagers.put(context.getUsername(), databaseManager);
+      databaseManager.tell(new DatabaseManager.Refresh(context.getUsername()), getSelf());
+    } else {
+      cancelTerminationScheduler();
+    }
+    scheduleTermination(context.getUsername());
+  }
+
+  private void handleTerminate(Terminate message) {
+    ActorRef databaseManager = databaseManagers.remove(message.username);
+    getContext().stop(databaseManager);
+    cancelTerminationScheduler();
+  }
+
+  private void cancelTerminationScheduler() {
+    LOG.info("Cancelling termination scheduler");
+    Cancellable cancellable = terminationSchedulers.remove(context.getUsername());
+    if (!(cancellable == null || cancellable.isCancelled()))
+      cancellable.cancel();
+  }
+
+  private void scheduleTermination(String username) {
+    Cancellable cancellable = context().system().scheduler().scheduleOnce(Duration.create(2, TimeUnit.MINUTES),
+        getSelf(), new Terminate(username), getContext().dispatcher(), getSelf());
+    terminationSchedulers.put(username, cancellable);
+  }
+
+  private ActorRef createDatabaseManager() {
+    return context().actorOf(DatabaseManager.props(context));
   }
 
   public static Props props(ViewContext viewContext) {
     return Props.create(MetaDataManager.class, viewContext);
+  }
+
+  private class Terminate {
+    public final String username;
+
+    public Terminate(String username) {
+      this.username = username;
+    }
   }
 }
