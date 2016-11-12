@@ -20,7 +20,6 @@ package org.apache.ambari.view.hive2.actor;
 
 import akka.actor.ActorRef;
 import akka.actor.Cancellable;
-import akka.actor.PoisonPill;
 import akka.actor.Props;
 import org.apache.ambari.view.ViewContext;
 import org.apache.ambari.view.hive2.actor.message.HiveMessage;
@@ -71,7 +70,7 @@ public class MetaDataManager extends HiveActor {
       databaseManagers.put(context.getUsername(), databaseManager);
       databaseManager.tell(new DatabaseManager.Refresh(context.getUsername()), getSelf());
     } else {
-      cancelTerminationScheduler();
+      cancelTerminationScheduler(message.getUsername());
     }
     scheduleTermination(context.getUsername());
   }
@@ -79,12 +78,12 @@ public class MetaDataManager extends HiveActor {
   private void handleTerminate(Terminate message) {
     ActorRef databaseManager = databaseManagers.remove(message.username);
     getContext().stop(databaseManager);
-    cancelTerminationScheduler();
+    cancelTerminationScheduler(message.getUsername());
   }
 
-  private void cancelTerminationScheduler() {
+  private void cancelTerminationScheduler(String username) {
     LOG.info("Cancelling termination scheduler");
-    Cancellable cancellable = terminationSchedulers.remove(context.getUsername());
+    Cancellable cancellable = terminationSchedulers.remove(username);
     if (!(cancellable == null || cancellable.isCancelled()))
       cancellable.cancel();
   }
@@ -108,6 +107,10 @@ public class MetaDataManager extends HiveActor {
 
     public Terminate(String username) {
       this.username = username;
+    }
+
+    public String getUsername() {
+      return username;
     }
   }
 }
