@@ -66,7 +66,7 @@ public class MetaDataManager extends HiveActor {
     LOG.info("Ping message received for user: {}, instance: {}", message.getUsername(), message.getInstanceName());
     ActorRef databaseManager = databaseManagers.get(message.getUsername());
     if (databaseManager == null) {
-      databaseManager = createDatabaseManager();
+      databaseManager = createDatabaseManager(message.getUsername(), message.getInstanceName());
       databaseManagers.put(context.getUsername(), databaseManager);
       databaseManager.tell(new DatabaseManager.Refresh(context.getUsername()), getSelf());
     } else {
@@ -82,10 +82,11 @@ public class MetaDataManager extends HiveActor {
   }
 
   private void cancelTerminationScheduler(String username) {
-    LOG.info("Cancelling termination scheduler");
     Cancellable cancellable = terminationSchedulers.remove(username);
-    if (!(cancellable == null || cancellable.isCancelled()))
+    if (!(cancellable == null || cancellable.isCancelled())) {
+      LOG.info("Cancelling termination scheduler");
       cancellable.cancel();
+    }
   }
 
   private void scheduleTermination(String username) {
@@ -94,7 +95,8 @@ public class MetaDataManager extends HiveActor {
     terminationSchedulers.put(username, cancellable);
   }
 
-  private ActorRef createDatabaseManager() {
+  private ActorRef createDatabaseManager(String username, String instanceName) {
+    LOG.info("Creating database manager for username: {}, instance: {}", username, instanceName);
     return context().actorOf(DatabaseManager.props(context));
   }
 

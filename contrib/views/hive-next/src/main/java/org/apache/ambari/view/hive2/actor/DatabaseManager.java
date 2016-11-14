@@ -19,27 +19,30 @@
 package org.apache.ambari.view.hive2.actor;
 
 import akka.actor.ActorRef;
+import akka.actor.PoisonPill;
 import akka.actor.Props;
+import com.google.common.base.Function;
+import com.google.common.collect.FluentIterable;
+import com.google.common.collect.Sets;
 import org.apache.ambari.view.ViewContext;
 import org.apache.ambari.view.hive2.AuthParams;
 import org.apache.ambari.view.hive2.ConnectionFactory;
 import org.apache.ambari.view.hive2.actor.message.HiveMessage;
 import org.apache.ambari.view.hive2.client.ConnectionConfig;
 import org.apache.ambari.view.hive2.internal.Connectable;
-import org.apache.ambari.view.hive2.internal.ConnectionException;
-import org.apache.ambari.view.hive2.internal.DatabaseMetaRetriever;
 import org.apache.ambari.view.hive2.internal.HiveConnectionWrapper;
 import org.apache.ambari.view.hive2.internal.dto.DatabaseInfo;
+import org.apache.ambari.view.hive2.internal.dto.TableInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import scala.concurrent.duration.Duration;
 
-import java.sql.SQLException;
-import java.util.ArrayList;
+import javax.annotation.Nullable;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Manages database related state, queries Hive to get the list of databases and then manages state for each database.
@@ -49,46 +52,139 @@ public class DatabaseManager extends HiveActor {
 
   private final Logger LOG = LoggerFactory.getLogger(getClass());
 
-  /**
-   * Stores the list of each Database Actors
-   */
-  private final Map<String, ActorRef> databaseArrays = new HashMap<>();
-
   private final Connectable connectable;
 
-  private Set<DatabaseInfo> databases = new HashSet<>();
+  private final ActorRef metaDataRetriever;
+  private final String username;
 
-  public DatabaseManager(Connectable connectable) {
+  private boolean refreshInProgress = false;
+  private boolean selfRefreshQueued = false;
+
+  private Map<String, DatabaseWrapper> databases = new HashMap<>();
+  private Set<String> databasesToUpdate;
+
+
+  public DatabaseManager(String username, Connectable connectable) {
+    this.username = username;
     this.connectable = connectable;
+    metaDataRetriever = getContext().actorOf(MetaDataRetriever.props(connectable));
   }
 
   @Override
   public void handleMessage(HiveMessage hiveMessage) {
 
     Object message = hiveMessage.getMessage();
-    if(message instanceof Refresh) {
+    if (message instanceof Refresh) {
       handleRefresh();
+    } else if (message instanceof SelfRefresh) {
+      handleSelfRefresh();
+    } else if (message instanceof MetaDataRetriever.DBRefreshed) {
+      handleDBRefreshed((MetaDataRetriever.DBRefreshed) message);
+    } else if (message instanceof MetaDataRetriever.TableRefreshed) {
+      handleTableRefreshed((MetaDataRetriever.TableRefreshed) message);
+    } else if (message instanceof MetaDataRetriever.AllTableRefreshed) {
+      handleAllTableRefeshed((MetaDataRetriever.AllTableRefreshed) message);
     }
 
+  }
+
+  private void handleSelfRefresh() {
+    if (refreshInProgress) {
+      getSelf().tell(new SelfRefresh(), getSelf());
+    }
+    selfRefreshQueued = false;
+    refresh();
   }
 
   private void handleRefresh() {
-    LOG.info("Received refresh for user");
-    DatabaseMetaRetriever retriever = new DatabaseMetaRetriever(connectable);
-    try {
-      long current = System.currentTimeMillis();
-      Set<DatabaseInfo> databaseInfos = retriever.getMeta();
-      long timeTaken = System.currentTimeMillis() - current;
-      LOG.info("Database Info: {}", databaseInfos);
-      LOG.info("Database meta information retrieval took {} ms", timeTaken);
-      updateState(databaseInfos);
-    } catch (ConnectionException | SQLException e) {
-      LOG.error("Failed to retrieve databases. Exception: {}", e);
+    if (refreshInProgress && selfRefreshQueued) {
+      return; // We will not honor refresh message when a refresh is going on and another self refresh is queued in mailbox
+    } else if (refreshInProgress) {
+      selfRefreshQueued = true; // If refresh is in progress, we will queue up only one refresh message.
+      getSelf().tell(new SelfRefresh(), getSelf());
+    } else {
+      refresh();
     }
   }
 
-  private void updateState(Set<DatabaseInfo> databaseInfos) {
+  private void handleDBRefreshed(MetaDataRetriever.DBRefreshed message) {
+    Set<DatabaseInfo> databasesInfos = message.getDatabases();
+    Set<String> currentDatabases = new HashSet<>(databases.keySet());
+    Set<String> newDatabases = FluentIterable.from(databasesInfos).transform(new Function<DatabaseInfo, String>() {
+      @Nullable
+      @Override
+      public String apply(@Nullable DatabaseInfo databaseInfo) {
+        return databaseInfo.getName();
+      }
+    }).toSet();
 
+    databasesToUpdate = new HashSet<>(newDatabases);
+
+    Set<String> databasesAdded = Sets.difference(newDatabases, currentDatabases);
+    Set<String> databasesRemoved = Sets.difference(currentDatabases, newDatabases);
+
+    updateDatabasesAdded(databasesAdded, databasesInfos);
+    updateDatabasesRemoved(databasesRemoved);
+  }
+
+  private void updateDatabasesAdded(Set<String> databasesAdded, Set<DatabaseInfo> databasesInfos) {
+    for (DatabaseInfo info : databasesInfos) {
+      if (databasesAdded.contains(info.getName())) {
+        DatabaseWrapper wrapper = new DatabaseWrapper(info);
+        databases.put(info.getName(), wrapper);
+        wrapper.getDatabaseNotifier().tell(new DatabaseChangeNotifier.DatabaseAdded(info.getName()), getSelf());
+      }
+    }
+  }
+
+  private void updateDatabasesRemoved(Set<String> databasesRemoved) {
+    for (String database : databasesRemoved) {
+      DatabaseWrapper wrapper = databases.remove(database);
+      ActorRef notifier = wrapper.getDatabaseNotifier();
+      notifier.tell(new DatabaseChangeNotifier.DatabaseRemoved(database), getSelf());
+      notifier.tell(PoisonPill.getInstance(), getSelf());
+    }
+  }
+
+  private void handleTableRefreshed(MetaDataRetriever.TableRefreshed message) {
+    ActorRef databaseChangeNotifier = getDatabaseChangeNotifier(message.getDatabase());
+    updateTable(message.getDatabase(), message.getTable());
+    databaseChangeNotifier.tell(new DatabaseChangeNotifier.TableUpdated(message.getTable()), getSelf());
+  }
+
+  private void handleAllTableRefeshed(MetaDataRetriever.AllTableRefreshed message) {
+    ActorRef databaseChangeNotifier = getDatabaseChangeNotifier(message.getDatabase());
+    databaseChangeNotifier.tell(new DatabaseChangeNotifier.AllTablesUpdated(message.getDatabase()), getSelf());
+    if (checkIfAllTablesOfAllDatabaseRefeshed(message)) {
+      refreshInProgress = false;
+    }
+  }
+
+  private boolean checkIfAllTablesOfAllDatabaseRefeshed(MetaDataRetriever.AllTableRefreshed message) {
+    databasesToUpdate.remove(message.getDatabase());
+    return databasesToUpdate.isEmpty();
+  }
+
+  private ActorRef getDatabaseChangeNotifier(String databaseName) {
+    DatabaseWrapper wrapper = databases.get(databaseName);
+    ActorRef databaseChangeNotifier = null;
+    if (wrapper != null) {
+      databaseChangeNotifier = wrapper.getDatabaseNotifier();
+    }
+    return databaseChangeNotifier;
+  }
+
+  private void refresh() {
+    LOG.info("Received refresh for user");
+    refreshInProgress = true;
+    metaDataRetriever.tell(new MetaDataRetriever.RefreshDB(), getSelf());
+
+    scheduleRefreshAfter(1, TimeUnit.MINUTES);
+  }
+
+  private void scheduleRefreshAfter(long time, TimeUnit timeUnit) {
+    getContext().system().scheduler().scheduleOnce(Duration.create(time, timeUnit),
+        getSelf(), new Refresh(username), getContext().dispatcher(), getSelf());
   }
 
   @Override
@@ -97,10 +193,18 @@ public class DatabaseManager extends HiveActor {
     connectable.disconnect();
   }
 
+  private void updateTable(String databaseName, TableInfo table) {
+    DatabaseWrapper wrapper = databases.get(databaseName);
+    if (wrapper != null) {
+      DatabaseInfo info = wrapper.getDatabase();
+      info.getTables().add(table);
+    }
+  }
+
   public static Props props(ViewContext context) {
     ConnectionConfig config = ConnectionFactory.create(context);
     Connectable connectable = new HiveConnectionWrapper(config.getJdbcUrl(), config.getUsername(), config.getPassword(), new AuthParams(context));
-    return Props.create(DatabaseManager.class, connectable);
+    return Props.create(DatabaseManager.class, config.getUsername(), connectable);
   }
 
   public static class Refresh {
@@ -112,6 +216,28 @@ public class DatabaseManager extends HiveActor {
 
     public String getUsername() {
       return username;
+    }
+  }
+
+  private static class SelfRefresh {
+
+  }
+
+  private class DatabaseWrapper {
+    private final DatabaseInfo database;
+    private final ActorRef databaseNotifier;
+
+    private DatabaseWrapper(DatabaseInfo database) {
+      this.database = database;
+      databaseNotifier = getContext().actorOf(DatabaseChangeNotifier.props());
+    }
+
+    public DatabaseInfo getDatabase() {
+      return database;
+    }
+
+    public ActorRef getDatabaseNotifier() {
+      return databaseNotifier;
     }
   }
 }
