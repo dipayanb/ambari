@@ -20,17 +20,76 @@ package org.apache.ambari.view.hive2.actor;
 
 import akka.actor.Props;
 import org.apache.ambari.view.hive2.actor.message.HiveMessage;
+import org.apache.ambari.view.hive2.internal.dto.TableInfo;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  *
  */
 public class TableChangeNotifier extends HiveActor {
+  private final Logger LOG = LoggerFactory.getLogger(getClass());
+
   @Override
   public void handleMessage(HiveMessage hiveMessage) {
+    Object message = hiveMessage.getMessage();
+    if(message instanceof TableUpdated) {
+      handleTableUpdated((TableUpdated) message);
+    } else if(message instanceof TableAdded) {
+      handleTableAdded((TableAdded) message);
+    } else if(message instanceof TableRemoved) {
+      handleTableRemoved((TableRemoved) message);
+    }
+  }
 
+  private void handleTableUpdated(TableUpdated message) {
+    LOG.info("Tables updated for table name: {}", message.getTableInfo().getName());
+  }
+
+  private void handleTableAdded(TableAdded message) {
+    LOG.info("Tables added for table name: {}", message.getTableInfo().getName());
+  }
+
+  private void handleTableRemoved(TableRemoved message) {
+    LOG.info("Tables removed for table name: {}", message.getTableName());
   }
 
   public static Props props() {
     return Props.create(TableChangeNotifier.class);
+  }
+
+
+  public static class TableAdded {
+    private final TableInfo tableInfo;
+    public TableAdded(TableInfo tableInfo) {
+      this.tableInfo = tableInfo;
+    }
+
+    public TableInfo getTableInfo() {
+      return tableInfo;
+    }
+  }
+
+  public static class TableRemoved {
+    private final String tableName;
+    public TableRemoved(String tableName) {
+      this.tableName = tableName;
+    }
+
+    public String getTableName() {
+      return tableName;
+    }
+  }
+
+
+  public static class TableUpdated {
+    private final TableInfo tableInfo;
+    public TableUpdated(TableInfo tableInfo) {
+      this.tableInfo = tableInfo;
+    }
+
+    public TableInfo getTableInfo() {
+      return tableInfo;
+    }
   }
 }

@@ -19,14 +19,18 @@
 package org.apache.ambari.view.hive2.actor;
 
 import akka.actor.ActorRef;
+import akka.actor.PoisonPill;
 import akka.actor.Props;
+import com.google.common.collect.Sets;
 import org.apache.ambari.view.hive2.actor.message.HiveMessage;
 import org.apache.ambari.view.hive2.internal.dto.TableInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
 /**
  *
@@ -34,7 +38,10 @@ import java.util.Map;
 public class DatabaseChangeNotifier extends HiveActor {
   private final Logger LOG = LoggerFactory.getLogger(getClass());
 
+  private String currentDatabaseName;
   private Map<String, TableWrapper> tables = new HashMap<>();
+  private Map<String, TableInfo> newTables = new HashMap<>();
+
   @Override
   public void handleMessage(HiveMessage hiveMessage) {
     Object message = hiveMessage.getMessage();
@@ -51,18 +58,55 @@ public class DatabaseChangeNotifier extends HiveActor {
 
   private void handleDatabaseAdded(DatabaseAdded message) {
     LOG.info("Database Added: {}", message.name);
+    currentDatabaseName = message.name;
+    // TODO: Send event to eventbus
   }
 
   private void handleDatabaseRemoved(DatabaseRemoved message) {
     LOG.info("Database Removed: {}", message.name);
+    // TODO: Send event to eventbus
   }
 
   private void handleTableUpdated(TableUpdated message) {
-    LOG.info("Table updated: {}", message.info.getName());
+    LOG.info("XXXXX: table xxxx. Size: {}", newTables.size());
+    newTables.put(message.info.getName(), message.info);
   }
 
   private void handleAllTableUpdated(AllTablesUpdated message) {
-    LOG.info("All table updated for database: {}", message.database);
+    Set<String> oldTableNames = new HashSet<>(tables.keySet());
+    Set<String> newTableNames = new HashSet<>(newTables.keySet());
+
+    Set<String> tablesAdded = Sets.difference(newTableNames, oldTableNames);
+    Set<String> tablesRemoved = Sets.difference(oldTableNames, newTableNames);
+    Set<String> tablesUpdated = Sets.intersection(oldTableNames, newTableNames);
+
+    updateTablesAdded(tablesAdded);
+    updateTablesRemoved(tablesRemoved);
+    updateTablesUpdated(tablesUpdated);
+    newTables.clear();
+  }
+
+  private void updateTablesAdded(Set<String> tablesAdded) {
+    for (String tableName: tablesAdded) {
+      TableWrapper wrapper = new TableWrapper(tableName);
+      tables.put(tableName, wrapper);
+      wrapper.getTableNotifier().tell(new TableChangeNotifier.TableAdded(newTables.get(tableName)), getSelf());
+    }
+  }
+
+  private void updateTablesRemoved(Set<String> tablesRemoved) {
+    for(String tableName: tablesRemoved) {
+      TableWrapper tableWrapper = tables.remove(tableName);
+      tableWrapper.getTableNotifier().tell(new TableChangeNotifier.TableRemoved(tableName), getSelf());
+      tableWrapper.getTableNotifier().tell(PoisonPill.getInstance(), getSelf());
+    }
+  }
+
+  private void updateTablesUpdated(Set<String> tablesUpdated) {
+    for(String tableName: tablesUpdated) {
+      TableWrapper tableWrapper = tables.get(tableName);
+      // TODO: Check what needs to be done here.
+    }
   }
 
   public static Props props() {
@@ -119,4 +163,6 @@ public class DatabaseChangeNotifier extends HiveActor {
       this.database = database;
     }
   }
+
+
 }
