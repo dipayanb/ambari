@@ -84,6 +84,8 @@ public class DatabaseManager extends HiveActor {
       handleTableRefreshed((MetaDataRetriever.TableRefreshed) message);
     } else if (message instanceof MetaDataRetriever.AllTableRefreshed) {
       handleAllTableRefeshed((MetaDataRetriever.AllTableRefreshed) message);
+    } else if (message instanceof GetDatabases) {
+      handleGetDatabases((GetDatabases) message);
     }
 
   }
@@ -160,6 +162,14 @@ public class DatabaseManager extends HiveActor {
     }
   }
 
+  private void handleGetDatabases(GetDatabases message) {
+    Set<DatabaseInfo> infos = new HashSet<>();
+    for(DatabaseWrapper wrapper: databases.values()) {
+      infos.add(wrapper.getDatabase());
+    }
+    getSender().tell(new DatabasesResult(infos), getSelf());
+  }
+
   private boolean checkIfAllTablesOfAllDatabaseRefeshed(MetaDataRetriever.AllTableRefreshed message) {
     databasesToUpdate.remove(message.getDatabase());
     return databasesToUpdate.isEmpty();
@@ -219,9 +229,7 @@ public class DatabaseManager extends HiveActor {
     }
   }
 
-  private static class SelfRefresh {
-
-  }
+  private static class SelfRefresh {}
 
   private class DatabaseWrapper {
     private final DatabaseInfo database;
@@ -238,6 +246,30 @@ public class DatabaseManager extends HiveActor {
 
     public ActorRef getDatabaseNotifier() {
       return databaseNotifier;
+    }
+  }
+
+  public static class GetDatabases {
+    private final String username;
+
+    public GetDatabases(String username) {
+      this.username = username;
+    }
+
+    public String getUsername() {
+      return username;
+    }
+  }
+
+  public static class DatabasesResult {
+    private final Set<DatabaseInfo> databases;
+
+    public DatabasesResult(Set<DatabaseInfo> databases) {
+      this.databases = databases;
+    }
+
+    public Set<DatabaseInfo> getDatabases() {
+      return databases;
     }
   }
 }

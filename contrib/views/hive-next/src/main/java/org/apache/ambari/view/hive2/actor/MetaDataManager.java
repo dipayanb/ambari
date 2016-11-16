@@ -59,6 +59,8 @@ public class MetaDataManager extends HiveActor {
       handlePing((Ping) message);
     } else if (message instanceof Terminate) {
       handleTerminate((Terminate) message);
+    } else if (message instanceof DatabaseManager.GetDatabases) {
+      handleGetDatabases((DatabaseManager.GetDatabases) message);
     }
   }
 
@@ -79,6 +81,17 @@ public class MetaDataManager extends HiveActor {
     ActorRef databaseManager = databaseManagers.remove(message.username);
     getContext().stop(databaseManager);
     cancelTerminationScheduler(message.getUsername());
+  }
+
+  private void handleGetDatabases(DatabaseManager.GetDatabases message) {
+    String username = message.getUsername();
+    ActorRef databaseManager = databaseManagers.get(username);
+    if(databaseManager != null) {
+      databaseManager.tell(message, getSender());
+    } else {
+      LOG.error("Database manager not found for user '{}'", username);
+      // TODO send sender a operation failed message.
+    }
   }
 
   private void cancelTerminationScheduler(String username) {
@@ -115,4 +128,5 @@ public class MetaDataManager extends HiveActor {
       return username;
     }
   }
+
 }

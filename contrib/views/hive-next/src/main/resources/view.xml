@@ -290,10 +290,10 @@
         <service-class>org.apache.ambari.view.hive2.resources.files.FileService</service-class>
     </resource>
 
-    <resource>
+    <!--<resource>
         <name>ddl</name>
         <service-class>org.apache.ambari.view.hive2.resources.browser.HiveBrowserService</service-class>
-    </resource>
+    </resource>-->
 
     <resource>
         <name>hive</name>
@@ -309,6 +309,11 @@
     <resource>
         <name>system</name>
         <service-class>org.apache.ambari.view.hive2.resources.system.SystemService</service-class>
+    </resource>
+
+    <resource>
+        <name>ddl</name>
+        <service-class>org.apache.ambari.view.hive2.resources.browser.DDLService</service-class>
     </resource>
 
     <persistence>
