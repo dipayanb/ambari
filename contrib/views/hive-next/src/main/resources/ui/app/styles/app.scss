@@ -27,3 +27,27 @@ $database-search-text-color: $gray;
     color: $database-search-text-color;
   }
 }
+
+.database-search-drawer {
+  position: absolute;
+  max-height: 300px;
+  width: calc(100% - 157px);
+  z-index: 1000;
+  background-color: $database-search-background;
+  border: 1px solid darken($database-search-background, 25%);
+  overflow-y: auto;
+  border-top: none;
+
+  .list-group {
+    margin: 0;
+    font-size: 1.2em;
+    .list-group-item {
+      border-color: darken($database-search-background, 10%);
+      i {
+        &.noshow {
+          visibility: hidden;
+        }
+      }
+    }
+  }
+}

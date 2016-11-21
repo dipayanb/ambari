@@ -2,14 +2,38 @@
   <p class="text-left text-uppercase"><strong>{{heading}}</strong></p>
   <p class="text-left text-muted"><small>{{subHeading}}</small></p>
 </div>
-<div class="col-md-10">
+<div class="col-md-9">
   <div class="input-group input-group-lg">
-    <input type="text" class="form-control">
+    {{#unless extendDrawer }}
+      {{input type="text" class="form-control display" value=selectedDatabase.name}}
+    {{else}}
+      {{input type="text" class="form-control search" value=filterText placeholder="Search Databases"}}
+    {{/unless}}
+
     {{#if enableSecondaryAction}}
       <div class="input-group-btn">
-        <button type="button" class="btn btn-default" {{action 'secondaryActionClicked'}}>{{fa-icon secondaryActionFaIcon}} {{secondaryActionText}} <span class="caret"></span></button>
+        <button type="button" class="btn btn-default {{if extendDrawer 'active'}}" {{action 'secondaryActionClicked'}}>{{fa-icon secondaryActionFaIcon}} {{secondaryActionText}} <span class="caret"></span></button>
       </div>
     {{/if}}
   </div>
+  {{#if extendDrawer }}
+    <div class="database-search-drawer">
+      <div class="list-group">
+        {{#each filteredDatabases as |database|}}
+            <a {{action "databaseClicked" database}} class="list-group-item {{if database.selected 'selected'}}">
+              {{#if database.selected}}
+                {{fa-icon "check-square-o" size=lg}}
+              {{else}}
+                {{fa-icon "square-o" size=lg}}
+              {{/if}}
+
+              &nbsp;&nbsp;
+              {{fa-icon "database" size="lg"}}&nbsp;&nbsp;{{database.name}}
+            </a>
+        {{/each}}
+      </div>
+
+    </div>
+  {{/if}}
 </div>
 {{yield}}

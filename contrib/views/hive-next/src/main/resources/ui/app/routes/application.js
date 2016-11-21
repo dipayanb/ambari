@@ -1,5 +1,5 @@
 import Ember from 'ember';
-import tabs from '../configs/top-level-tabs'
+import tabs from '../configs/top-level-tabs';
 
 export default Ember.Route.extend({
   keepAlive: Ember.inject.service('keep-alive'),
