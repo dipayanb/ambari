@@ -14,7 +14,12 @@ export default Ember.Route.extend({
 
   setupController(controller, model) {
     let sortedModel =  model.sortBy('name');
-    controller.set('model', sortedModel);
+    let selectedModel = sortedModel.filterBy('selected', true).get('firstObject');
+    sortedModel.removeObject(selectedModel);
+    let finalList = [];
+    finalList.pushObject(selectedModel);
+    finalList.pushObjects(sortedModel);
+    controller.set('model', finalList);
   },
 
   selectDatabase(model) {
