@@ -29,7 +29,7 @@ export default Ember.Route.extend({
 
   actions: {
     databaseSelected(database) {
-      this.transitionTo('databases.tables', database.get('id'));
+      this.transitionTo('databases.database.tables', database.get('id'));
     }
   }
 });

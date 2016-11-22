@@ -5,6 +5,17 @@ export default Ember.Route.extend({
     let selectedDatabase = this.modelFor('databases.database');
     return this.store.query('table', {databaseId: selectedDatabase.get('name')});
   },
+
+  afterModel(model) {
+    if (model.get('length') > 0) {
+      this.selectTable(model);
+    }
+  },
+  selectTable(model) {
+    let sortedModel = model.sortBy('name');
+    let toSelect = sortedModel.get('firstObject');
+    toSelect.set('selected', true);
+  },
   actions: {
     tableSelected(table) {
       let tables = this.controllerFor('databases.database.tables').get('model');

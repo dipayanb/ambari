@@ -1,0 +1,24 @@
+<div class="row">
+  <table class="table table-bordered table-hover">
+    <thead>
+    <tr>
+      <th>COLUMN NAME</th>
+      <th>COLUMN TYPE</th>
+      <th>SIZE</th>
+      <th>NULLABLE</th>
+      <th>AUTO INCREMENT</th>
+    </tr>
+    </thead>
+    <tbody>
+    {{#each table.columns as |column|}}
+      <tr>
+        <th>{{column.name}}</th>
+        <td>{{column.typeName}}</td>
+        <td>{{column.size}}</td>
+        <td>{{column.nullable}}</td>
+        <td>{{column.autoIncrement}}</td>
+      </tr>
+    {{/each}}
+    </tbody>
+  </table>
+</div>
