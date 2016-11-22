@@ -22,9 +22,9 @@
         {{#each filteredDatabases as |database|}}
             <a {{action "databaseClicked" database}} class="list-group-item {{if database.selected 'selected'}}">
               {{#if database.selected}}
-                {{fa-icon "check-square-o" size=lg}}
-              {{else}}
-                {{fa-icon "square-o" size=lg}}
+                <div class="pull-right">
+                  {{fa-icon "check" size="lg"}}
+                </div>
               {{/if}}
 
               &nbsp;&nbsp;

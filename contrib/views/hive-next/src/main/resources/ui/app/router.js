@@ -13,7 +13,10 @@ Router.map(function() {
   this.route('notifications');
   this.route('savedqueries');
   this.route('databases', function() {
-    this.route('tables', {path: '/:databaseId/tables'});
+    this.route('database', {path: '/:databaseId'}, function() {
+      this.route('tables', {path: '/tables'});
+    });
+
   });
 });
 
