@@ -51,3 +51,60 @@ $database-search-text-color: $gray;
     }
   }
 }
+
+$list-filter-header-background: lighten($body-bg, 10%);
+$list-filter-text-color: $gray;
+
+.list-filter {
+  color:  $list-filter-text-color;
+  .list-header {
+    p {
+      margin: 0;
+    }
+    padding: 15px 10px;
+    background-color: $list-filter-header-background;
+    border: 1px solid darken($list-filter-header-background, 15%);
+  }
+  .am-view-list-item {
+    &.active {
+      color: inherit;
+      background-color: #FEF5DD;
+      border: 1px solid darken($list-filter-header-background, 15%);
+    }
+  }
+}
+
+.search-bar {
+  padding: 0 10px;
+  background-color: darken($list-filter-header-background, 10%);
+  position: relative;
+  input {
+    width: calc(100% - 2.5em);
+    height: 2.8em;
+    background-color: transparent;
+    border: none;
+    margin-right: 10px;
+    outline: none;
+  }
+
+  a {
+    color: inherit;
+  }
+}
+
+$table-info-background: lighten($body-bg, 10%);
+.table-info {
+  border: 1px solid darken($table-info-background, 15%);
+  background-color: $body-bg;
+  .table-header {
+    p {
+      margin: 0;
+    }
+    padding: 15px 15px;
+    background-color: $table-info-background;
+  }
+  .table-body {
+
+  }
+}
+

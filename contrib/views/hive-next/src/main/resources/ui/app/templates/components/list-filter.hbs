@@ -1,0 +1,14 @@
+<div class="list-header clearfix">
+  <div class="col-md-12">
+    <p class="text-uppercase"><strong>{{header}}&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;{{items.length}}</strong></p>
+  </div>
+</div>
+<div class="search-bar">
+  {{input value=filterText class="search-query" placeholder=placeholder}}
+  {{#if emptyFilterText}}
+    <a {{action "enableFilter"}}>{{fa-icon "search" class="fa-flip-horizontal" size="lg"}}</a>
+  {{else}}
+    <a {{action "disableFilter"}}>{{fa-icon "times" class="fa-flip-horizontal" size="lg"}}</a>
+  {{/if}}
+</div>
+{{yield filteredItems}}

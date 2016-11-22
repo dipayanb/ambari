@@ -5,5 +5,12 @@ export default DS.Model.extend({
   type: DS.attr('string'),
   columns: DS.attr(),
   database: DS.belongsTo('database'),
-  selected: false
+  selected: false,
+  icon: Ember.computed('type', function() {
+    if(this.get('type').toLowerCase() === 'view') {
+      return "eye";
+    } else {
+      return "table";
+    }
+  })
 });

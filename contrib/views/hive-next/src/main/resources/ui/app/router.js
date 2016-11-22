@@ -14,9 +14,14 @@ Router.map(function() {
   this.route('savedqueries');
   this.route('databases', function() {
     this.route('database', {path: '/:databaseId'}, function() {
-      this.route('tables', {path: '/tables'});
+      this.route('tables', {path: '/tables'}, function() {
+        this.route('table', {path: '/:name'}, function() {
+          this.route('columns');
+          this.route('ddl');
+          this.route('stats');
+        })
+      });
     });
-
   });
 });
 
