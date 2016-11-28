@@ -98,8 +98,7 @@ public class DDLService extends BaseService {
   @Produces(MediaType.APPLICATION_JSON)
   public Response getTableInfo(@PathParam("database_id") String databaseName, @PathParam("table_id") String tableName) {
     ConnectionConfig hiveConnectionConfig = getHiveConnectionConfig();
-    DDLDelegator delegator = new DDLDelegatorImpl(context, ConnectionSystem.getInstance().getActorSystem(), ConnectionSystem.getInstance().getOperationController(context));
-    TableMeta meta = proxy.getTableProperties(delegator, hiveConnectionConfig, databaseName, tableName);
+    TableMeta meta = proxy.getTableProperties(context, hiveConnectionConfig, databaseName, tableName);
     JSONObject response = new JSONObject();
     response.put("tableInfo", meta);
     return Response.ok(response).build();

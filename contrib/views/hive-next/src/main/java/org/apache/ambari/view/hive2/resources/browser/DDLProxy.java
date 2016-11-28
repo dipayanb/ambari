@@ -30,6 +30,7 @@ import org.apache.ambari.view.hive2.ConnectionSystem;
 import org.apache.ambari.view.hive2.actor.DatabaseManager;
 import org.apache.ambari.view.hive2.client.ConnectionConfig;
 import org.apache.ambari.view.hive2.client.DDLDelegator;
+import org.apache.ambari.view.hive2.client.DDLDelegatorImpl;
 import org.apache.ambari.view.hive2.client.Row;
 import org.apache.ambari.view.hive2.internal.dto.DatabaseInfo;
 import org.apache.ambari.view.hive2.internal.dto.DatabaseResponse;
@@ -101,7 +102,8 @@ public class DDLProxy {
     return transformToTableResponse(tableOptional.get(), databaseName);
   }
 
-  public TableMeta getTableProperties(DDLDelegator delegator, ConnectionConfig connectionConfig, String databaseName, String tableName) {
+  public TableMeta getTableProperties(ViewContext context, ConnectionConfig connectionConfig, String databaseName, String tableName) {
+    DDLDelegator delegator = new DDLDelegatorImpl(context, ConnectionSystem.getInstance().getActorSystem(), ConnectionSystem.getInstance().getOperationController(context));
     List<Row> createTableStatementRows = delegator.getTableCreateStatement(connectionConfig, databaseName, tableName);
     List<Row> describeFormattedRows = delegator.getTableDescriptionFormatted(connectionConfig, databaseName, tableName);
 

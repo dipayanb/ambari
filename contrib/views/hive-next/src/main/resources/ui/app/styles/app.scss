@@ -2,6 +2,9 @@
 @import 'fonts';
 
 
+body {
+  //height: 100vh;
+}
 
 
 .main-wrapper {
@@ -74,6 +77,12 @@ $list-filter-text-color: $gray;
   }
 }
 
+.table-list {
+  .list-group-item {
+    background-color: lighten($body-bg, 10%);
+  }
+}
+
 .search-bar {
   padding: 0 10px;
   background-color: darken($list-filter-header-background, 10%);
@@ -126,6 +135,14 @@ pre {
 }
 
 .dipayan {
-  min-height: 600px;
+  min-height: 100vh;
+}
+
+.dipayan123 {
+  border: 3px solid #cc0000;
+  //height: 800px;
+  background-color: lighten($body-bg, 5%);
+  height: calc(100vh - 180px);
+  overflow-y: scroll;
 }
 

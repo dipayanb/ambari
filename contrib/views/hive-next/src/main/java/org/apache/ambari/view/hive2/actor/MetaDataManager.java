@@ -89,8 +89,10 @@ public class MetaDataManager extends HiveActor {
     if(databaseManager != null) {
       databaseManager.tell(message, getSender());
     } else {
-      LOG.error("Database manager not found for user '{}'", username);
-      // TODO send sender a operation failed message.
+      // Not database Manager created. Start the database manager with a ping message
+      // and queue up the GetDatabases call to self
+      getSelf().tell(new Ping(username, context.getInstanceName()), getSender());
+      getSelf().tell(message, getSender());
     }
   }
 

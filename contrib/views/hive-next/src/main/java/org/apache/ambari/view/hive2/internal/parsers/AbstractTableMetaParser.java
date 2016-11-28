@@ -71,7 +71,7 @@ public abstract class AbstractTableMetaParser<T> implements TableMetaSectionPars
         sectionStarted = true;
       } else {
         if (sectionStarted) {
-          if (secondarySectionMarker != null && secondarySectionMarker.equalsIgnoreCase(colName) && colValue == null) {
+          if (secondarySectionMarker != null && secondarySectionMarker.equalsIgnoreCase(colName) && colValue != null) {
             continue;
           }
 

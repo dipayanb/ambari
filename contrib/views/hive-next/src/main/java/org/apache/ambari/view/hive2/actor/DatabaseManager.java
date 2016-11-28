@@ -163,8 +163,14 @@ public class DatabaseManager extends HiveActor {
   }
 
   private void handleGetDatabases(GetDatabases message) {
+    if (refreshInProgress) {
+      // If currently refreshing, then schedule the same message after 500 milliseconds
+      getContext().system().scheduler().scheduleOnce(Duration.create(500, TimeUnit.MILLISECONDS),
+          getSelf(), message, getContext().dispatcher(), getSender());
+      return;
+    }
     Set<DatabaseInfo> infos = new HashSet<>();
-    for(DatabaseWrapper wrapper: databases.values()) {
+    for (DatabaseWrapper wrapper : databases.values()) {
       infos.add(wrapper.getDatabase());
     }
     getSender().tell(new DatabasesResult(infos), getSelf());
@@ -229,7 +235,8 @@ public class DatabaseManager extends HiveActor {
     }
   }
 
-  private static class SelfRefresh {}
+  private static class SelfRefresh {
+  }
 
   private class DatabaseWrapper {
     private final DatabaseInfo database;

@@ -1,18 +1,21 @@
-<div class="col-md-3">
-  <div class="row">
-    {{#list-filter header="tables" items=model
-        placeholder="Search"
-        as |filteredItems|}}
-      {{#list-group items=filteredItems as |item|}}
-        {{list-item item=item itemClicked="tableSelected"}}
-      {{/list-group}}
-    {{/list-filter}}
+<div class="dipayan123 clearfix">
+  <div class="col-md-3">
+    <div class="row">
+      {{#list-filter header="tables" items=model
+      placeholder="Search"
+      as |filteredItems|}}
+        {{#list-group class="table-list" items=filteredItems as |item|}}
+          {{list-item item=item itemClicked="tableSelected"}}
+        {{/list-group}}
+      {{/list-filter}}
+    </div>
   </div>
-</div>
-<div class="col-md-9">
-  <div class="row">
-    {{outlet}}
+  <div class="col-md-9">
+    <div class="row">
+      {{outlet}}
+    </div>
   </div>
+
 </div>
 
 
