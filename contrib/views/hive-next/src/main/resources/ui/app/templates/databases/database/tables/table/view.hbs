@@ -1,0 +1,22 @@
+<div class="row">
+  <table class="table table-bordered table-hover">
+    <thead>
+    <tr>
+      <th>INFORMATION</th>
+      <th>VALUE</th>
+    </tr>
+    </thead>
+    {{#with table.viewInfo as |info|}}
+      <tbody>
+        <tr>
+          <th>Original Text</th>
+          <td>{{info.originalText}}</td>
+        </tr>
+        <tr>
+          <th>Extended Text</th>
+          <td>{{info.extendedText}}</td>
+        </tr>
+      </tbody>
+    {{/with}}
+  </table>
+</div>

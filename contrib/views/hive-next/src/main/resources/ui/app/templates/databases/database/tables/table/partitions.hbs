@@ -1,0 +1,20 @@
+<div class="row">
+  <table class="table table-bordered table-hover">
+    <thead>
+    <tr>
+      <th>COLUMN NAME</th>
+      <th>COLUMN TYPE</th>
+      <th>COMMENT</th>
+    </tr>
+    </thead>
+    <tbody>
+    {{#each model.partitionInfo.columns as |column|}}
+      <tr>
+        <th>{{column.name}}</th>
+        <td>{{column.type}}</td>
+        <td>{{column.comment}}</td>
+      </tr>
+    {{/each}}
+    </tbody>
+  </table>
+</div>

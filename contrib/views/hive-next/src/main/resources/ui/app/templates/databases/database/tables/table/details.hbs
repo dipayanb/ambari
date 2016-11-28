@@ -1,0 +1,47 @@
+<div class="row">
+  <table class="table table-bordered table-hover">
+    <thead>
+    <tr>
+      <th>INFORMATION</th>
+      <th>VALUE</th>
+    </tr>
+    </thead>
+    {{#with table.detailedInfo as |info|}}
+      <tbody>
+        <tr>
+          <th>Database Name</th>
+          <td>{{info.dbName}}</td>
+        </tr>
+        <tr>
+          <th>Owner</th>
+          <td>{{info.owner}}</td>
+        </tr>
+        <tr>
+          <th>Create Time</th>
+          <td>{{info.createTime}}</td>
+        </tr>
+        <tr>
+          <th>Last Access Time</th>
+          <td>{{info.lastAccessTime}}</td>
+        </tr>
+        <tr>
+          <th>Retention</th>
+          <td>{{info.retention}}</td>
+        </tr>
+        <tr>
+          <th>Table Type</th>
+          <td>{{info.tableType}}</td>
+        </tr>
+        <tr>
+          <th>Location</th>
+          <td>{{info.location}}</td>
+        </tr>
+        <tr>
+          <th>Parameters</th>
+          <td><pre class="table-info-json">{{toJson info.parameters}}</pre></td>
+        </tr>
+      </tbody>
+    {{/with}}
+
+  </table>
+</div>

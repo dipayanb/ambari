@@ -18,9 +18,6 @@
 
 package org.apache.ambari.view.hive2.internal.dto;
 
-import java.util.HashSet;
-import java.util.Set;
-
 /**
  *
  */
@@ -29,7 +26,6 @@ public class TableResponse {
   private String name;
   private String type;
   private String databaseId;
-  private Set<ColumnInfo> columns = new HashSet<>();
 
   public String getId() {
     return id;
@@ -63,11 +59,4 @@ public class TableResponse {
     this.databaseId = databaseId;
   }
 
-  public Set<ColumnInfo> getColumns() {
-    return columns;
-  }
-
-  public void setColumns(Set<ColumnInfo> columns) {
-    this.columns = columns;
-  }
 }

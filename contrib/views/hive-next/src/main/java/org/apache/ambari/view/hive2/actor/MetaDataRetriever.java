@@ -92,31 +92,13 @@ public class MetaDataRetriever extends HiveActor {
 
   private void refreshTablesInfo(String database) throws ConnectionException, SQLException {
     HiveConnection connection = getHiveConnection();
-    Set<TableInfo> infos = new HashSet<>();
     try (ResultSet tables = connection.getMetaData().getTables("", database, null, null)) {
       while (tables.next()) {
         TableInfo info = new TableInfo(tables.getString(3), tables.getString(4));
-        infos.add(info);
+        getSender().tell(new TableRefreshed(info, database), getSelf());
       }
     }
-
-    for (TableInfo info : infos) {
-      info.setColumns(getColumnsInfo(database, info.getName(), connection));
-      getSender().tell(new TableRefreshed(info, database), getSelf());
-    }
-
     getSender().tell(new AllTableRefreshed(database), getSelf());
-  }
-
-  private Set<ColumnInfo> getColumnsInfo(String database, String tableName, HiveConnection connection) throws SQLException {
-    Set<ColumnInfo> infos = new HashSet<>();
-    try (ResultSet columns = connection.getMetaData().getColumns("", database, tableName, null)) {
-      while (columns.next()) {
-        ColumnInfo info = new ColumnInfo(columns.getString(4), columns.getString(6));
-        infos.add(info);
-      }
-    }
-    return infos;
   }
 
   public static  Props props(Connectable connectable) {

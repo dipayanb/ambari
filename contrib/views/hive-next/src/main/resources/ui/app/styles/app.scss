@@ -118,3 +118,14 @@ $table-info-background: lighten($body-bg, 10%);
   }
 }
 
+pre {
+  &.table-info-json {
+    border: none;
+    background-color: inherit;
+  }
+}
+
+.dipayan {
+  min-height: 600px;
+}
+

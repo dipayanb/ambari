@@ -23,7 +23,7 @@ package org.apache.ambari.view.hive2.internal.dto;
  */
 public class ViewInfo {
   private String originalText;
-  private String extendenText;
+  private String extendedText;
 
 
   public String getOriginalText() {
@@ -34,19 +34,19 @@ public class ViewInfo {
     this.originalText = originalText;
   }
 
-  public String getExtendenText() {
-    return extendenText;
+  public String getExtendedText() {
+    return extendedText;
   }
 
-  public void setExtendenText(String extendenText) {
-    this.extendenText = extendenText;
+  public void setExtendedText(String extendedText) {
+    this.extendedText = extendedText;
   }
 
   @Override
   public String toString() {
     return "ViewInfo{" +
         "originalText='" + originalText + '\'' +
-        ", extendenText='" + extendenText + '\'' +
+        ", extendedText='" + extendedText + '\'' +
         '}';
   }
 }

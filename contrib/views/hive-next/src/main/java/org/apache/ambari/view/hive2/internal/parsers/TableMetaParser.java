@@ -26,5 +26,5 @@ import java.util.List;
  *
  */
 public interface TableMetaParser<T> {
-  T parse(List<Row> createTableStatementRows, List<Row> describeFormattedRows);
+  T parse(String database, String table, List<Row> createTableStatementRows, List<Row> describeFormattedRows);
 }

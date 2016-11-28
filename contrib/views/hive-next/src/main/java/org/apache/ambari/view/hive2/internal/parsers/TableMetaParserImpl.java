@@ -55,7 +55,7 @@ public class TableMetaParserImpl implements TableMetaParser<TableMeta> {
 
 
   @Override
-  public TableMeta parse(List<Row> createTableStatementRows, List<Row> describeFormattedRows) {
+  public TableMeta parse(String database, String table, List<Row> createTableStatementRows, List<Row> describeFormattedRows) {
     String createTableStatement = createTableStatementParser.parse(createTableStatementRows);
     DetailedTableInfo tableInfo = detailedTableInfoParser.parse(describeFormattedRows);
     StorageInfo storageInfo = storageInfoParser.parse(describeFormattedRows);
@@ -65,6 +65,9 @@ public class TableMetaParserImpl implements TableMetaParser<TableMeta> {
 
 
     TableMeta meta = new TableMeta();
+    meta.setId(database + "/" + table);
+    meta.setDatabase(database);
+    meta.setTable(table);
     meta.setColumns(columns);
     meta.setDdl(createTableStatement);
     meta.setPartitionInfo(partitionInfo);

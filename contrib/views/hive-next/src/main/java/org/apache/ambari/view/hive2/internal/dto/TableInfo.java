@@ -30,7 +30,6 @@ import java.util.Set;
 public class TableInfo {
   private String name;
   private String type;
-  private Set<ColumnInfo> columns = new HashSet<>();
 
   public TableInfo(String name, String type) {
     this.name = name;
@@ -51,18 +50,6 @@ public class TableInfo {
 
   public void setType(String type) {
     this.type = type;
-  }
-
-  public Set<ColumnInfo> getColumns() {
-    return columns;
-  }
-
-  public void setColumns(Set<ColumnInfo> columns) {
-    this.columns = columns;
-  }
-
-  public void addColumn(ColumnInfo columnInfo) {
-    this.columns.add(columnInfo);
   }
 
   @Override
@@ -90,7 +77,6 @@ public class TableInfo {
     return "TableInfo{" +
         "name='" + name + '\'' +
         ", type='" + type + '\'' +
-        ", columns=" + columns +
         '}';
   }
 }

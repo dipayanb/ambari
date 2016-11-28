@@ -105,7 +105,7 @@ public class DDLProxy {
     List<Row> createTableStatementRows = delegator.getTableCreateStatement(connectionConfig, databaseName, tableName);
     List<Row> describeFormattedRows = delegator.getTableDescriptionFormatted(connectionConfig, databaseName, tableName);
 
-    return tableMetaParser.parse(createTableStatementRows, describeFormattedRows);
+    return tableMetaParser.parse(databaseName, tableName, createTableStatementRows, describeFormattedRows);
   }
 
   private Optional<DatabaseInfo> selectDatabase(final String databaseId) {
@@ -152,11 +152,10 @@ public class DDLProxy {
 
   private TableResponse transformToTableResponse(TableInfo tableInfo, String databaseName) {
     TableResponse response = new TableResponse();
+    response.setId(databaseName + "/" + tableInfo.getName());
     response.setName(tableInfo.getName());
     response.setType(tableInfo.getType());
-    response.setColumns(tableInfo.getColumns());
     response.setDatabaseId(databaseName);
-    response.setId(databaseName + "/" + tableInfo.getName());
     return response;
   }
 

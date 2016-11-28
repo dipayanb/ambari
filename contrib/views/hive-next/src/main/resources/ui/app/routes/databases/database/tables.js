@@ -23,7 +23,7 @@ export default Ember.Route.extend({
         table.set('selected', false);
       });
       table.set('selected', true);
-      this.transitionTo('databases.database.tables.table', table);
+      this.transitionTo('databases.database.tables.table', table.get('name'));
     }
   }
 });

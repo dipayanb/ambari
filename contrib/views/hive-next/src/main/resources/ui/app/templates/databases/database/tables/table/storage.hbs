@@ -1,0 +1,46 @@
+<div class="row">
+  <table class="table table-bordered table-hover">
+    <thead>
+    <tr>
+      <th>INFORMATION</th>
+      <th>VALUE</th>
+    </tr>
+    </thead>
+    {{#with table.storageInfo as |info|}}
+      <tbody>
+      <tr>
+        <th>SerDe Library</th>
+        <td>{{info.serdeLibrary}}</td>
+      </tr>
+      <tr>
+        <th>Input Format</th>
+        <td>{{info.inputFormat}}</td>
+      </tr>
+      <tr>
+        <th>Output Format</th>
+        <td>{{info.outputFormat}}</td>
+      </tr>
+      <tr>
+        <th>Compressed</th>
+        <td>{{info.compressed}}</td>
+      </tr>
+      <tr>
+        <th>Number of Buckets</th>
+        <td>{{info.numBuckets}}</td>
+      </tr>
+      <tr>
+        <th>Bucket Columns</th>
+        <td>{{info.bucketCols}}</td>
+      </tr>
+      <tr>
+        <th>Sort Columns</th>
+        <td>{{info.sortCols}}</td>
+      </tr>
+      <tr>
+        <th>Parameters</th>
+        <td><pre class="table-info-json">{{toJson info.parameters}}</pre></td>
+      </tr>
+      </tbody>
+    {{/with}}
+  </table>
+</div>

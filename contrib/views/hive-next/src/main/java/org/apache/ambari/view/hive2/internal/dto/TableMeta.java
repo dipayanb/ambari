@@ -24,6 +24,9 @@ import java.util.List;
  *
  */
 public class TableMeta {
+  private String id;
+  private String database;
+  private String table;
   private List<ColumnInfo> columns;
   private String ddl;
   private PartitionInfo partitionInfo;
@@ -31,6 +34,29 @@ public class TableMeta {
   private StorageInfo storageInfo;
   private ViewInfo viewInfo;
 
+  public String getId() {
+    return id;
+  }
+
+  public void setId(String id) {
+    this.id = id;
+  }
+
+  public String getDatabase() {
+    return database;
+  }
+
+  public void setDatabase(String database) {
+    this.database = database;
+  }
+
+  public String getTable() {
+    return table;
+  }
+
+  public void setTable(String table) {
+    this.table = table;
+  }
 
   public List<ColumnInfo> getColumns() {
     return columns;

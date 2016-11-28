@@ -5,14 +5,22 @@ export default Ember.Route.extend({
   model(params) {
     let database = this.modelFor('databases.database').get('name');
     let table = params.name;
-    return this.store.queryRecord('table', {databaseId: database, tableName: table});
+    return this.store.queryRecord('tableInfo', {databaseId: database, tableName: table});
   },
 
-  setupController: function(controller, model) {
+  setupController: function (controller, model) {
     this._super(controller, model);
-    controller.set('tabs', tabs);
+    let newTabs = Ember.copy(tabs);
+    if (Ember.isEmpty(model.get('partitionInfo'))) {
+      newTabs = newTabs.rejectBy('name', 'partitions');
+    }
+
+    console.log(model.get('detailedInfo.tableType').toLowerCase());
+    if (model.get('detailedInfo.tableType').toLowerCase().indexOf('view') === -1) {
+      newTabs = newTabs.rejectBy('name', 'viewInfo');
+    }
+    controller.set('tabs', newTabs);
   },
 
-  actions: {
-  }
+  actions: {}
 });

@@ -41,7 +41,7 @@ public class ViewInfoParser extends AbstractTableMetaParser<ViewInfo>{
       return null; // View Information is not present
     }
     info.setOriginalText(getString(parsedSection, "View Original Text:"));
-    info.setExtendenText(getString(parsedSection, "View Expanded Text:"));
+    info.setExtendedText(getString(parsedSection, "View Expanded Text:"));
     return info;
   }
 }

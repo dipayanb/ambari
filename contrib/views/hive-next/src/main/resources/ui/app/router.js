@@ -17,6 +17,10 @@ Router.map(function() {
       this.route('tables', {path: '/tables'}, function() {
         this.route('table', {path: '/:name'}, function() {
           this.route('columns');
+          this.route('partitions');
+          this.route('storage');
+          this.route('details');
+          this.route('view');
           this.route('ddl');
           this.route('stats');
         })

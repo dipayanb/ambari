@@ -11,6 +11,10 @@ module.exports = function(defaults) {
     },
     fingerprint: {
       enabled: false
+    },
+    codemirror: {
+      modes: ['sql'],
+      themes: ['solarized']
     }
   });
 
