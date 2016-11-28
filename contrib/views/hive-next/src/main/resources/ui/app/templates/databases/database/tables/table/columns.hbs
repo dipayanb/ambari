@@ -4,19 +4,15 @@
     <tr>
       <th>COLUMN NAME</th>
       <th>COLUMN TYPE</th>
-      <th>SIZE</th>
-      <th>NULLABLE</th>
-      <th>AUTO INCREMENT</th>
+      <th>COMMENT</th>
     </tr>
     </thead>
     <tbody>
     {{#each table.columns as |column|}}
       <tr>
         <th>{{column.name}}</th>
-        <td>{{column.typeName}}</td>
-        <td>{{column.size}}</td>
-        <td>{{column.nullable}}</td>
-        <td>{{column.autoIncrement}}</td>
+        <td>{{column.type}}</td>
+        <td>{{column.comment}}</td>
       </tr>
     {{/each}}
     </tbody>

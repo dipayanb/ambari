@@ -28,6 +28,8 @@ public interface DDLDelegator {
 
   List<Row> getTableDescriptionFormatted(ConnectionConfig config, String database, String table);
 
+  List<Row> getTableCreateStatement(ConnectionConfig config, String database, String table);
+
   List<ColumnDescription> getTableDescription(ConnectionConfig config, String database, String table, String like, boolean extended);
 
   Cursor<Row, ColumnDescription> getDbListCursor(ConnectionConfig config, String like);

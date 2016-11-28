@@ -112,12 +112,7 @@ public class MetaDataRetriever extends HiveActor {
     Set<ColumnInfo> infos = new HashSet<>();
     try (ResultSet columns = connection.getMetaData().getColumns("", database, tableName, null)) {
       while (columns.next()) {
-        ColumnInfo info = new ColumnInfo(columns.getString(4));
-        info.setType(columns.getInt(5));
-        info.setTypeName(columns.getString(6));
-        info.setSize(columns.getInt(7));
-        info.setNullable(columns.getString(18).equalsIgnoreCase("YES"));
-        info.setAutoIncrement(columns.getString(23).equalsIgnoreCase("YES"));
+        ColumnInfo info = new ColumnInfo(columns.getString(4), columns.getString(6));
         infos.add(info);
       }
     }

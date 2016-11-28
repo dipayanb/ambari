@@ -28,10 +28,15 @@ import com.google.common.collect.FluentIterable;
 import org.apache.ambari.view.ViewContext;
 import org.apache.ambari.view.hive2.ConnectionSystem;
 import org.apache.ambari.view.hive2.actor.DatabaseManager;
+import org.apache.ambari.view.hive2.client.ConnectionConfig;
+import org.apache.ambari.view.hive2.client.DDLDelegator;
+import org.apache.ambari.view.hive2.client.Row;
 import org.apache.ambari.view.hive2.internal.dto.DatabaseInfo;
 import org.apache.ambari.view.hive2.internal.dto.DatabaseResponse;
 import org.apache.ambari.view.hive2.internal.dto.TableInfo;
+import org.apache.ambari.view.hive2.internal.dto.TableMeta;
 import org.apache.ambari.view.hive2.internal.dto.TableResponse;
+import org.apache.ambari.view.hive2.internal.parsers.TableMetaParserImpl;
 import org.apache.ambari.view.hive2.utils.ServiceFormattedException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -40,6 +45,7 @@ import scala.concurrent.duration.Duration;
 import javax.annotation.Nullable;
 import javax.inject.Inject;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
@@ -50,10 +56,12 @@ public class DDLProxy {
   private final Logger LOG = LoggerFactory.getLogger(getClass());
 
   private final ViewContext context;
+  private final TableMetaParserImpl tableMetaParser;
 
   @Inject
-  public DDLProxy(ViewContext context) {
+  public DDLProxy(ViewContext context, TableMetaParserImpl tableMetaParser) {
     this.context = context;
+    this.tableMetaParser = tableMetaParser;
     LOG.info("Creating DDLProxy");
   }
 
@@ -91,6 +99,13 @@ public class DDLProxy {
       // Throw exception
     }
     return transformToTableResponse(tableOptional.get(), databaseName);
+  }
+
+  public TableMeta getTableProperties(DDLDelegator delegator, ConnectionConfig connectionConfig, String databaseName, String tableName) {
+    List<Row> createTableStatementRows = delegator.getTableCreateStatement(connectionConfig, databaseName, tableName);
+    List<Row> describeFormattedRows = delegator.getTableDescriptionFormatted(connectionConfig, databaseName, tableName);
+
+    return tableMetaParser.parse(createTableStatementRows, describeFormattedRows);
   }
 
   private Optional<DatabaseInfo> selectDatabase(final String databaseId) {

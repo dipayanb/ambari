@@ -19,6 +19,7 @@
 package org.apache.ambari.view.hive2;
 
 import org.apache.ambari.view.ViewContext;
+import org.apache.ambari.view.hive2.client.ConnectionConfig;
 import org.apache.ambari.view.hive2.utils.SharedObjectsFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -50,5 +51,9 @@ public class BaseService {
 
   public BaseService() {
 //    Thread.currentThread().setContextClassLoader(null);
+  }
+
+  protected ConnectionConfig getHiveConnectionConfig() {
+    return ConnectionFactory.create(context);
   }
 }

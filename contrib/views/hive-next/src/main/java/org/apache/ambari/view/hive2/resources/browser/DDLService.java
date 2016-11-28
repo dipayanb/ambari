@@ -19,7 +19,12 @@
 package org.apache.ambari.view.hive2.resources.browser;
 
 import org.apache.ambari.view.hive2.BaseService;
+import org.apache.ambari.view.hive2.ConnectionSystem;
+import org.apache.ambari.view.hive2.client.ConnectionConfig;
+import org.apache.ambari.view.hive2.client.DDLDelegator;
+import org.apache.ambari.view.hive2.client.DDLDelegatorImpl;
 import org.apache.ambari.view.hive2.internal.dto.DatabaseResponse;
+import org.apache.ambari.view.hive2.internal.dto.TableMeta;
 import org.apache.ambari.view.hive2.internal.dto.TableResponse;
 import org.json.simple.JSONObject;
 
@@ -85,6 +90,18 @@ public class DDLService extends BaseService {
     TableResponse table = proxy.getTable(databaseName, tableName);
     JSONObject response = new JSONObject();
     response.put("table", table);
+    return Response.ok(response).build();
+  }
+
+  @GET
+  @Path("databases/{database_id}/tables/{table_id}/info")
+  @Produces(MediaType.APPLICATION_JSON)
+  public Response getTableInfo(@PathParam("database_id") String databaseName, @PathParam("table_id") String tableName) {
+    ConnectionConfig hiveConnectionConfig = getHiveConnectionConfig();
+    DDLDelegator delegator = new DDLDelegatorImpl(context, ConnectionSystem.getInstance().getActorSystem(), ConnectionSystem.getInstance().getOperationController(context));
+    TableMeta meta = proxy.getTableProperties(delegator, hiveConnectionConfig, databaseName, tableName);
+    JSONObject response = new JSONObject();
+    response.put("tableInfo", meta);
     return Response.ok(response).build();
   }
 }

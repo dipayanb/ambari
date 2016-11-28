@@ -26,62 +26,30 @@ import org.apache.commons.lang3.builder.HashCodeBuilder;
  */
 public class ColumnInfo {
   private String name;
-  private int type;
-  private String typeName;
-  private int size;
-  private boolean nullable;
-  private boolean autoIncrement;
+  private String type;
+  private String comment;
 
-  public ColumnInfo(String name) {
+  public ColumnInfo(String name, String type, String comment) {
     this.name = name;
+    this.type = type;
+    this.comment = comment;
   }
+
+  public ColumnInfo(String name, String type) {
+    this(name, type, "");
+  }
+
 
   public String getName() {
     return name;
   }
 
-  public void setName(String name) {
-    this.name = name;
-  }
-
-  public int getType() {
+  public String getType() {
     return type;
   }
 
-  public void setType(int type) {
-    this.type = type;
-  }
-
-  public String getTypeName() {
-    return typeName;
-  }
-
-  public void setTypeName(String typeName) {
-    this.typeName = typeName;
-  }
-
-  public int getSize() {
-    return size;
-  }
-
-  public void setSize(int size) {
-    this.size = size;
-  }
-
-  public boolean isNullable() {
-    return nullable;
-  }
-
-  public void setNullable(boolean nullable) {
-    this.nullable = nullable;
-  }
-
-  public boolean isAutoIncrement() {
-    return autoIncrement;
-  }
-
-  public void setAutoIncrement(boolean autoIncrement) {
-    this.autoIncrement = autoIncrement;
+  public String getComment() {
+    return comment;
   }
 
   @Override
@@ -94,25 +62,17 @@ public class ColumnInfo {
 
     return new EqualsBuilder()
         .append(getName(), that.getName())
+        .append(getType(), that.getType())
+        .append(getComment(), that.getComment())
         .isEquals();
-  }
-
-  @Override
-  public int hashCode() {
-    return new HashCodeBuilder(17, 37)
-        .append(getName())
-        .toHashCode();
   }
 
   @Override
   public String toString() {
     return "ColumnInfo{" +
         "name='" + name + '\'' +
-        ", type=" + type +
-        ", typeName='" + typeName + '\'' +
-        ", size=" + size +
-        ", nullable=" + nullable +
-        ", autoIncrement=" + autoIncrement +
+        ", type='" + type + '\'' +
+        ", comment='" + comment + '\'' +
         '}';
   }
 }

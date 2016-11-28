@@ -20,6 +20,7 @@ package org.apache.ambari.view.hive2.resources.browser;
 
 import org.apache.ambari.view.ViewContext;
 import org.apache.ambari.view.ViewResourceHandler;
+import org.apache.ambari.view.hive2.BaseService;
 import org.apache.ambari.view.hive2.ConnectionFactory;
 import org.apache.ambari.view.hive2.ConnectionSystem;
 import org.apache.ambari.view.hive2.client.ColumnDescription;
@@ -50,7 +51,7 @@ import java.util.concurrent.Callable;
 /**
  * Database access resource
  */
-public class HiveBrowserService {
+public class HiveBrowserService extends BaseService {
   @Inject
   ViewResourceHandler handler;
   @Inject
@@ -256,8 +257,4 @@ public class HiveBrowserService {
     }
   }
 
-
-  private ConnectionConfig getHiveConnectionConfig() {
-    return ConnectionFactory.create(context);
-  }
 }

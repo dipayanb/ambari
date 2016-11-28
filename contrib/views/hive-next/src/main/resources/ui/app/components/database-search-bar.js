@@ -5,7 +5,7 @@ export default Ember.Component.extend({
   databases: [],
 
   heading: 'database',
-  subHeading: 'Select or search namespace',
+  subHeading: 'Select or search database/schema',
   enableSecondaryAction: true,
   secondaryActionText: 'Browse',
   secondaryActionFaIcon: 'folder',

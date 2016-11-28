@@ -86,6 +86,19 @@ public class DDLDelegatorImpl implements DDLDelegator {
     return rowsFromDB.isPresent() ? rowsFromDB.get().getRows() : null;
   }
 
+  @Override
+  public List<Row> getTableCreateStatement(ConnectionConfig config, String database, String table) {
+    Optional<Result> rowsFromDB = getRowsFromDB(config, getShowCreateTableStatements(database, table));
+    return rowsFromDB.isPresent() ? rowsFromDB.get().getRows() : null;
+  }
+
+  private String[] getShowCreateTableStatements(String database, String table) {
+    return new String[]{
+        String.format("use %s",database),
+        String.format("show create table %s", table)
+    };
+  }
+
   private String[] getTableDescriptionStatements(String database, String table) {
     return new String[]{
       String.format("use %s",database),
