@@ -1,9 +1,17 @@
 @import 'bootstrap-overrides';
 @import 'fonts';
 
+@import "ember-modal-dialog/ember-modal-structure";
+@import "ember-modal-dialog/ember-modal-appearance";
 
-body {
-  //height: 100vh;
+
+.ember-modal-dialog {
+  box-shadow: 0 0 5px grey;
+  padding: 0;
+}
+.ember-modal-overlay.translucent {
+  z-index: 110;
+  background-color: rgba(#808080, .77);
 }
 
 
@@ -135,14 +143,50 @@ pre {
 }
 
 .dipayan {
-  min-height: 100vh;
+  .CodeMirror {
+    height: 100vh;
+  }
 }
 
 .dipayan123 {
-  border: 3px solid #cc0000;
-  //height: 800px;
   background-color: lighten($body-bg, 5%);
   height: calc(100vh - 180px);
   overflow-y: scroll;
 }
+
+.hv-dropdown {
+  position: absolute;
+  .dropdown-menu {
+    margin-top: -1px;
+    padding: 0;
+    min-width: 200px;
+    a {
+      line-height: 1.5em;
+      font-size: 1em;
+      padding: 5px 15px 5px 15px;
+      &:hover {
+        background-color: #FEF5DD;
+      }
+      i {
+        padding-right: 10px;
+      }
+    }
+  }
+
+  &.tables-dropdown {
+    z-index: 100;
+    top: 8px;
+    right: 15px;
+  }
+
+  &.database-dropdown {
+    top: 18px;
+    right: 30px;
+  }
+}
+
+
+
+
+
 

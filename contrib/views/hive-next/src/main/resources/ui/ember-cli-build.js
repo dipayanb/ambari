@@ -7,7 +7,7 @@ module.exports = function(defaults) {
     // Add options here
     bootstrap: {
       // List of Bootstrap plugins to use
-      plugins: []
+      plugins: ['dropdown']
     },
     fingerprint: {
       enabled: false

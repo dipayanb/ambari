@@ -1,0 +1,20 @@
+{{#modal-dialog
+close="close"
+translucentOverlay=true
+clickOutsideToClose=true
+container-class="modal-dialog"}}
+  <div class="modal-content">
+    <div class="modal-header text-danger">
+      <button type="button" class="close" {{action "close"}}><span aria-hidden="true">&times;</span></button>
+      <h4 class="modal-title">{{fa-icon "exclamation-triangle" size="lg"}} Error</h4>
+    </div>
+    <div class="modal-body text-center">
+      <p class="">Cannot drop database. Database <span class="text-uppercase"><strong>'{{name}}'</strong></span> is not empty !</p>
+      <div class="clearfix">
+        <div class="col-md-offset-4 col-md-4">
+          <button type="button" class="btn btn-warning btn-block" {{action "close"}}>{{fa-icon "times"}} Ok</button>
+        </div>
+      </div>
+    </div>
+  </div><!-- /.modal-content -->
+{{/modal-dialog}}

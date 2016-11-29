@@ -1,2 +1,21 @@
 {{database-search-bar databases=model selected="databaseSelected"}}
+<div class="hv-dropdown database-dropdown">
+  <div class="dropdown">
+    <button class="btn btn-default dropdown-toggle" type="button" id="dropdownMenu1" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
+      {{fa-icon "navicon"}}
+    </button>
+    <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="dropdownMenu1">
+      <li><a href="#" {{action "dropDatabase"}} class="text-uppercase">{{fa-icon "trash"}} drop database</a></li>
+      <li><a href="#" {{action "createTable"}} class="text-uppercase">{{fa-icon "plus"}} create table</a></li>
+    </ul>
+  </div>
+</div>
+
+{{#if databaseNotEmpty}}
+  {{database-not-empty name=databaseName close="notEmptyDialogClosed"}}
+{{/if}}
+
+{{#if confirmDropDatabase}}
+  {{database-drop-confirm name=databaseName yes="databaseDropConfirmed" no="databaseDropDeclined"}}
+{{/if}}
 {{outlet}}
