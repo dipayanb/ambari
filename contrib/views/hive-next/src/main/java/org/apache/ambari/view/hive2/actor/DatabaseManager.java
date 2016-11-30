@@ -92,10 +92,12 @@ public class DatabaseManager extends HiveActor {
 
   private void handleSelfRefresh() {
     if (refreshInProgress) {
-      getSelf().tell(new SelfRefresh(), getSelf());
+      getContext().system().scheduler().scheduleOnce(Duration.create(500, TimeUnit.MILLISECONDS),
+          getSelf(), new SelfRefresh(), getContext().dispatcher(), getSelf());
+    } else {
+      selfRefreshQueued = false;
+      refresh();
     }
-    selfRefreshQueued = false;
-    refresh();
   }
 
   private void handleRefresh() {
@@ -103,7 +105,8 @@ public class DatabaseManager extends HiveActor {
       return; // We will not honor refresh message when a refresh is going on and another self refresh is queued in mailbox
     } else if (refreshInProgress) {
       selfRefreshQueued = true; // If refresh is in progress, we will queue up only one refresh message.
-      getSelf().tell(new SelfRefresh(), getSelf());
+      getContext().system().scheduler().scheduleOnce(Duration.create(500, TimeUnit.MILLISECONDS),
+          getSelf(), new SelfRefresh(), getContext().dispatcher(), getSelf());
     } else {
       refresh();
     }
