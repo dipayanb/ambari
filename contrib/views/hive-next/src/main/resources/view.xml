@@ -312,6 +312,12 @@
     </resource>
 
     <resource>
+        <name>settings</name>
+        <resource-class>org.apache.ambari.view.hive2.resources.settings.Setting</resource-class>
+        <service-class>org.apache.ambari.view.hive2.resources.settings.SettingsService</service-class>
+    </resource>
+
+    <resource>
         <name>ddl</name>
         <service-class>org.apache.ambari.view.hive2.resources.browser.DDLService</service-class>
     </resource>
@@ -331,6 +337,10 @@
         </entity>
         <entity>
             <class>org.apache.ambari.view.hive2.resources.resources.FileResourceItem</class>
+            <id-property>id</id-property>
+        </entity>
+        <entity>
+            <class>org.apache.ambari.view.hive2.resources.settings.Setting</class>
             <id-property>id</id-property>
         </entity>
         <entity>
