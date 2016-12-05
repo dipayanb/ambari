@@ -1,0 +1,16 @@
+<td>
+  {{#power-select
+    selected=selectedParam
+    options=hiveParameters
+    search=(action "searchAction")
+    searchField="name"
+    searchPlaceholder="Type the paramter"
+    onchange=(action "selectionMade") as |parameter|}}
+    {{parameter.name}}
+  {{/power-select}}
+</td>
+<td>{{setting.value}}</td>
+<td>
+  <button class="btn btn-success" {{action "update"}}>{{fa-icon "save"}} update</button>
+  <button class="btn btn-danger" {{action "cancel"}}>{{fa-icon "times"}} cancel</button>
+</td>

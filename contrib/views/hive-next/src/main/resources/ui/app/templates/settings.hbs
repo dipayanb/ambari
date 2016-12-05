@@ -1,1 +1,14 @@
-{{outlet}}
+<div class="col-md-12 table-info">
+  <div class="row table-body">
+    {{#setting-list settings=model newSettings="addNewSettings" as |setting|}}
+      {{#unless setting.editMode}}
+        {{setting-item setting=setting editAction="editAction" deleteAction="deleteAction"}}
+      {{else}}
+        {{edit-setting-item setting=setting
+                            hiveParameters=hiveParameters
+                            updateAction="updateAction"
+                            cancelAction="cancelAction"}}
+      {{/unless}}
+    {{/setting-list}}
+  </div>
+</div>

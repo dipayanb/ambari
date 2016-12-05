@@ -1,0 +1,19 @@
+<table class="table table-bordered table-hover">
+  <thead>
+  <tr>
+    <th width="40%">KEY</th>
+    <th width="40%">VALUE</th>
+    <th width="20%">ACTIONS</th>
+  </tr>
+  </thead>
+  <tbody>
+  {{#each settings as |setting|}}
+    {{yield setting}}
+  {{/each}}
+  <tr class="new-settings text-center">
+    <td colspan="3">
+      <a {{action "addNewSettings"}}>{{fa-icon "plus"}} Add New</a>
+    </td>
+  </tr>
+  </tbody>
+</table>

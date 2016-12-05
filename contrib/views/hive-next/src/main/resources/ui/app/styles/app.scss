@@ -4,6 +4,8 @@
 @import "ember-modal-dialog/ember-modal-structure";
 @import "ember-modal-dialog/ember-modal-appearance";
 
+@import "power-select-overrides";
+
 
 .ember-modal-dialog {
   box-shadow: 0 0 5px grey;
@@ -183,6 +185,16 @@ pre {
     top: 18px;
     right: 30px;
   }
+}
+
+.new-settings {
+  background-color: #FEF5DD;
+  a {
+    text-decoration: none;
+    display: block;
+    width: 100%
+  }
+
 }
 
 
