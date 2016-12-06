@@ -9,7 +9,15 @@
     {{parameter.name}}
   {{/power-select}}
 </td>
-<td>{{setting.value}}</td>
+<td>
+  <div class="{{if invalid 'has-error'}}">
+    {{input type="text" class="form-control" value=selectedValue}}
+    {{#if invalid}}
+      <span class="help-block">{{currentError}}</span>
+    {{/if}}
+
+  </div>
+</td>
 <td>
   <button class="btn btn-success" {{action "update"}}>{{fa-icon "save"}} update</button>
   <button class="btn btn-danger" {{action "cancel"}}>{{fa-icon "times"}} cancel</button>

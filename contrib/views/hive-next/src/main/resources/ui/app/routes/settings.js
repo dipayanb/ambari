@@ -7,7 +7,25 @@ export default Ember.Route.extend({
   },
   setupController(controller, model) {
     this._super(...arguments);
-    controller.set('hiveParameters', hiveParams);
+    const appendedHiveParams = this.prepareExhaustiveParameters(hiveParams, model);
+    controller.set('hiveParameters', appendedHiveParams);
+  },
+
+  prepareExhaustiveParameters(hiveParams, model) {
+    let newHiveParams = [];
+    newHiveParams.pushObjects(hiveParams);
+    model.forEach(x => {
+      let param = hiveParams.findBy('name', x.get('key'));
+
+      if(Ember.isEmpty(param)) {
+        newHiveParams.pushObject(
+          Ember.Object.create({name: x.get('key'), disabled: true})
+        );
+      } else {
+        param.set('disabled', true);
+      }
+    });
+    return newHiveParams;
   },
 
   actions: {
@@ -47,6 +65,11 @@ export default Ember.Route.extend({
       } else {
         newSetting.set('editMode', false);
       }
+    },
+
+    willTransition(transition) {
+      let unsavedModels = this.get('controller.model').filterBy('isNew', true);
+      unsavedModels.forEach(x => this.store.unloadRecord(x));
     }
   }
 });
