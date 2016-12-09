@@ -6,6 +6,14 @@ export default Ember.Component.extend({
   pullRight: Ember.computed.readOnly('tab.pullRight'),
   active: Ember.computed.alias('tab.active'),
 
+  shouldTransition: Ember.computed('tab.transition', function() {
+    if(!Ember.isEmpty(this.get('tab.transition'))) {
+      return this.get('tab.transition');
+    } else {
+      return true;
+    }
+  }),
+
   didInsertElement: function() {
     Ember.run.later(() => this.send('changeActiveState'));
     this.$('a').click(() => {
@@ -16,11 +24,19 @@ export default Ember.Component.extend({
   },
 
   actions : {
+    selected() {
+      this.get('tabs').forEach((x) => x.set('active', false));
+      this.set('active', true);
+      this.sendAction('activate', this.get('tab.link'));
+    },
+
     changeActiveState: function() {
-      let classes = this.$('a').attr('class').split(' ');
-      if(classes.contains('active')) {
-        this.get('tabs').forEach((x) => x.set('active', false));
-        this.set('active', true);
+      if(this.get('shouldTransition')) {
+        let classes = this.$('a').attr('class').split(' ');
+        if(classes.contains('active')) {
+          this.get('tabs').forEach((x) => x.set('active', false));
+          this.set('active', true);
+        }
       }
     }
   }

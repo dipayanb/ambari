@@ -1,1 +1,6 @@
-{{#link-to tab.link eventName='click'}}{{fa-icon tab.faIcon}}&nbsp;&nbsp;{{tab.label}}{{/link-to}}
+{{#unless shouldTransition}}
+  <a {{action 'selected'}}>{{fa-icon tab.faIcon}}&nbsp;&nbsp;{{tab.label}}</a>
+{{else}}
+  {{#link-to tab.link eventName='click'}}{{fa-icon tab.faIcon}}&nbsp;&nbsp;{{tab.label}}{{/link-to}}
+{{/unless}}
+

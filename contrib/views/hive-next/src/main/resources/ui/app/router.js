@@ -15,6 +15,7 @@ Router.map(function() {
   this.route('databases', function() {
     this.route('database', {path: '/:databaseId'}, function() {
       this.route('tables', {path: '/tables'}, function() {
+        this.route('new');
         this.route('table', {path: '/:name'}, function() {
           this.route('columns');
           this.route('partitions');
