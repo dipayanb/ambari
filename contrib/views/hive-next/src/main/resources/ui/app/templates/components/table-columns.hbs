@@ -1,1 +1,20 @@
-Table Columns
+<table class="table table-bordered table-hover">
+  <thead>
+  <tr>
+    <th width="30%">COLUMN NAME</th>
+    <th width="30%">DATA TYPE</th>
+    <th width="10%">ADVANCED</th>
+    <th width="20%">ACTION</th>
+  </tr>
+  </thead>
+  <tbody>
+  {{#each columns as |column|}}
+    {{column-item column=column}}
+  {{/each}}
+  <tr class="new-settings text-center">
+    <td colspan="5">
+      <a {{action "addNewColumn"}}>{{fa-icon "plus"}} Add New Column</a>
+    </td>
+  </tr>
+  </tbody>
+</table>

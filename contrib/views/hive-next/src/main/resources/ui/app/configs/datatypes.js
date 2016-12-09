@@ -1,0 +1,16 @@
+export default [
+  {label: "TINYINT", hasPrecision: false, hasScale: false},
+  {label: "SMALLINT", hasPrecision: false, hasScale: false},
+  {label: "INT", hasPrecision: false, hasScale: false},
+  {label: "BIGINT",hasPrecision: false, hasScale: false},
+  {label: "BOOLEAN",hasPrecision: false, hasScale: false},
+  {label: "FLOAT",hasPrecision: false, hasScale: false},
+  {label: "DOUBLE",hasPrecision: false, hasScale: false},
+  {label: "STRING",hasPrecision: false, hasScale: false},
+  {label: "BINARY",hasPrecision: false, hasScale: false},
+  {label: "DATE", hasPrecision: false, hasScale: false},
+  {label: "TIMESTAMP",hasPrecision: false, hasScale: false},
+  {label: "DECIMAL", hasPrecision: true, hasScale: true},
+  {label: "VARCHAR", hasPrecision: true, hasScale: false},
+  {label: "CHAR", hasPrecision: true, hasScale: false},
+]

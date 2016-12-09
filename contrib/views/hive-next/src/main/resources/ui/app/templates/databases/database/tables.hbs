@@ -5,8 +5,6 @@
         {{#link-to "databases.database.tables.new" class="btn btn-success"}}{{fa-icon "plus"}}{{/link-to}}
       </div>
 
-
-
       {{#list-filter header="tables" items=model
       placeholder="Search"
       as |filteredItems|}}
@@ -14,7 +12,6 @@
           {{list-item item=item itemClicked="tableSelected"}}
         {{/list-group}}
       {{/list-filter}}
-
 
     </div>
   </div>
