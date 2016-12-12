@@ -526,19 +526,10 @@ public class JobService extends BaseService {
     try {
       Map jobInfo = PropertyUtils.describe(request.job);
       Job job = new JobImpl(jobInfo);
-
-
-      getResourceManager().create(job);
-
-      JobController createdJobController = getResourceManager().readController(job.getId());
-      createdJobController.submit();
-      getResourceManager().saveIfModified(createdJobController);
-
-      response.setHeader("Location",
-          String.format("%s/%s", ui.getAbsolutePath().toString(), job.getId()));
-
+      JobController createdJobController = new JobServiceInternal().createJob(job, getResourceManager());
       JSONObject jobObject = jsonObjectFromJob(createdJobController);
-
+      response.setHeader("Location",
+        String.format("%s/%s", ui.getAbsolutePath().toString(), job.getId()));
       return Response.ok(jobObject).status(201).build();
     } catch (WebApplicationException ex) {
       LOG.error("Error occurred while creating job : ",ex);
@@ -551,8 +542,6 @@ public class JobService extends BaseService {
       throw new ServiceFormattedException(ex.getMessage(), ex);
     }
   }
-
-
 
   /**
    * Remove connection credentials

@@ -19,17 +19,20 @@
 package org.apache.ambari.view.hive2.resources.browser;
 
 import org.apache.ambari.view.hive2.BaseService;
-import org.apache.ambari.view.hive2.ConnectionSystem;
 import org.apache.ambari.view.hive2.client.ConnectionConfig;
-import org.apache.ambari.view.hive2.client.DDLDelegator;
-import org.apache.ambari.view.hive2.client.DDLDelegatorImpl;
 import org.apache.ambari.view.hive2.internal.dto.DatabaseResponse;
 import org.apache.ambari.view.hive2.internal.dto.TableMeta;
 import org.apache.ambari.view.hive2.internal.dto.TableResponse;
+import org.apache.ambari.view.hive2.resources.jobs.viewJobs.Job;
+import org.apache.ambari.view.hive2.resources.jobs.viewJobs.JobResourceManager;
+import org.apache.ambari.view.hive2.utils.SharedObjectsFactory;
 import org.json.simple.JSONObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.inject.Inject;
 import javax.ws.rs.GET;
+import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
@@ -44,6 +47,18 @@ import java.util.Set;
 public class DDLService extends BaseService {
 
   private final DDLProxy proxy;
+  private JobResourceManager resourceManager;
+
+  protected final static Logger LOG =
+    LoggerFactory.getLogger(DDLService.class);
+
+  protected synchronized JobResourceManager getResourceManager() {
+    if (resourceManager == null) {
+      SharedObjectsFactory connectionsFactory = getSharedObjectsFactory();
+      resourceManager = new JobResourceManager(connectionsFactory, context);
+    }
+    return resourceManager;
+  }
 
   @Inject
   public DDLService(DDLProxy proxy) {
@@ -81,6 +96,14 @@ public class DDLService extends BaseService {
     JSONObject response = new JSONObject();
     response.put("tables", tables);
     return Response.ok(response).build();
+  }
+
+  @POST
+  @Path("databases/{database_id}/tables")
+  @Produces(MediaType.APPLICATION_JSON)
+  public Response createTable(@PathParam("database_id") String databaseName, TableMeta tableMeta) {
+    Job job = proxy.createTable(databaseName, tableMeta, getResourceManager());
+    return Response.ok(job).build();
   }
 
   @GET
