@@ -6,9 +6,9 @@
  * to you under the Apache License, Version 2.0 (the
  * "License"); you may not use this file except in compliance
  * with the License.  You may obtain a copy of the License at
- * <p>
+ * <p/>
  * http://www.apache.org/licenses/LICENSE-2.0
- * <p>
+ * <p/>
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -24,6 +24,7 @@ import akka.actor.Inbox;
 import com.google.common.base.Function;
 import com.google.common.base.Optional;
 import com.google.common.base.Predicate;
+import com.google.common.base.Strings;
 import com.google.common.collect.FluentIterable;
 import org.apache.ambari.view.ViewContext;
 import org.apache.ambari.view.hive2.ConnectionSystem;
@@ -38,15 +39,24 @@ import org.apache.ambari.view.hive2.internal.dto.TableInfo;
 import org.apache.ambari.view.hive2.internal.dto.TableMeta;
 import org.apache.ambari.view.hive2.internal.dto.TableResponse;
 import org.apache.ambari.view.hive2.internal.parsers.TableMetaParserImpl;
+import org.apache.ambari.view.hive2.internal.query.generators.CreateTableQueryGenerator;
+import org.apache.ambari.view.hive2.resources.jobs.JobServiceInternal;
+import org.apache.ambari.view.hive2.resources.jobs.viewJobs.Job;
+import org.apache.ambari.view.hive2.resources.jobs.viewJobs.JobController;
+import org.apache.ambari.view.hive2.resources.jobs.viewJobs.JobImpl;
+import org.apache.ambari.view.hive2.resources.jobs.viewJobs.JobResourceManager;
 import org.apache.ambari.view.hive2.utils.ServiceFormattedException;
+import org.apache.hadoop.yarn.webapp.WebAppException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import scala.concurrent.duration.Duration;
 
 import javax.annotation.Nullable;
 import javax.inject.Inject;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
@@ -54,7 +64,7 @@ import java.util.concurrent.TimeUnit;
  *
  */
 public class DDLProxy {
-  private final Logger LOG = LoggerFactory.getLogger(getClass());
+  private static final Logger LOG = LoggerFactory.getLogger(DDLProxy.class);
 
   private final ViewContext context;
   private final TableMetaParserImpl tableMetaParser;
@@ -194,4 +204,24 @@ public class DDLProxy {
   }
 
 
+  public Job createTable(String databaseName, TableMeta tableMeta, JobResourceManager resourceManager) {
+    if (Strings.isNullOrEmpty(tableMeta.getDatabase())) {
+      tableMeta.setDatabase(databaseName);
+    }
+    String createTableQuery = new CreateTableQueryGenerator(tableMeta).getQuery();
+    Map jobInfo = new HashMap<>();
+    jobInfo.put("title", "Internal Job");
+    jobInfo.put("forcedContent", createTableQuery);
+    jobInfo.put("dataBase", databaseName);
+
+    Job job = null;
+    try {
+      job = new JobImpl(jobInfo);
+      JobController createdJobController = new JobServiceInternal().createJob(job, resourceManager);
+      return createdJobController.getJob();
+    } catch (Throwable e) {
+      LOG.error("Exception occurred while creating the table for create Query : {}", createTableQuery);
+      throw new WebAppException(e);
+    }
+  }
 }

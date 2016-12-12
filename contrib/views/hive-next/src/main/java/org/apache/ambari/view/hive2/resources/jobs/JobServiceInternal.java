@@ -16,20 +16,20 @@
 * limitations under the License.
 */
 
-package org.apache.ambari.view.hive2.internal;
+package org.apache.ambari.view.hive2.resources.jobs;
 
-import org.apache.ambari.view.hive2.internal.dto.TableMeta;
+import org.apache.ambari.view.hive2.resources.jobs.viewJobs.Job;
+import org.apache.ambari.view.hive2.resources.jobs.viewJobs.JobController;
+import org.apache.ambari.view.hive2.resources.jobs.viewJobs.JobResourceManager;
 
-public class CreateTableQueryGenerator {
-  private TableMeta tableMeta;
-  public CreateTableQueryGenerator(TableMeta tableMeta) {
-    this.tableMeta = tableMeta;
+public class JobServiceInternal {
+  public JobController createJob(Job job, JobResourceManager resourceManager) throws Throwable {
+    resourceManager.create(job);
+
+    JobController createdJobController = resourceManager.readController(job.getId());
+    createdJobController.submit();
+    resourceManager.saveIfModified(createdJobController);
+    return createdJobController;
   }
 
-  public String getQuery(){
-    StringBuffer stringBuffer = new StringBuffer();
-    stringBuffer.append("CREATE ");
-
-    return stringBuffer.toString();
-  }
 }
