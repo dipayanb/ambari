@@ -1,21 +1,35 @@
+<div class="row">
+  <div class="col-md-12 form-horizontal table-name-input">
+    <div class="form-group">
+      <label for="inputEmail3" class="col-md-1 control-label">Name</label>
+      <div class="col-md-11">
+        <input type="email" class="form-control" id="inputEmail3" placeholder="Table name">
+      </div>
+    </div>
+  </div>
+</div>
+
 {{#tabs-pane tabs=tabs inverse=true as |tab|}}
   {{tabs-item tab=tab tabs=tabs activate="activate"}}
 {{/tabs-pane}}
 
 <div class="create-table-inner">
-  {{#each tabs as |tab|}}
-    {{#if tab.active}}
-      {{#if (eq tab.link "create.table.columns")}}
-        {{table-columns}}
+  <div class="row">
+    {{#each tabs as |tab|}}
+      {{#if tab.active}}
+        {{#if (eq tab.link "create.table.columns")}}
+          {{table-columns columns=columns}}
+        {{/if}}
+        {{#if (eq tab.link "create.table.properties")}}
+          {{table-properties}}
+        {{/if}}
+        {{#if (eq tab.link "create.table.advanced")}}
+          {{table-advanced-settings}}
+        {{/if}}
       {{/if}}
-      {{#if (eq tab.link "create.table.properties")}}
-        {{table-properties}}
-      {{/if}}
-      {{#if (eq tab.link "create.table.advanced")}}
-        {{table-advanced-settings}}
-      {{/if}}
-    {{/if}}
-  {{/each}}
+    {{/each}}
+  </div>
+
 </div>
 <div class="create-table-controls">
   <button class="btn btn-success">{{fa-icon "plus"}} Create</button>

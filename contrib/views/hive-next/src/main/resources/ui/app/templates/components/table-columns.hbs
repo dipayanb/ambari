@@ -2,14 +2,18 @@
   <thead>
   <tr>
     <th width="30%">COLUMN NAME</th>
-    <th width="30%">DATA TYPE</th>
-    <th width="10%">ADVANCED</th>
-    <th width="20%">ACTION</th>
+    <th width="25%">DATA TYPE</th>
+    <th width="25%">SIZE</th>
+    <th width="5%" class="text-center">ADVANCED</th>
+    <th width="15%" class="text-center">ACTION</th>
   </tr>
   </thead>
   <tbody>
   {{#each columns as |column|}}
-    {{column-item column=column}}
+    {{column-item column=column
+                  columnDeleted="columnDeleted"
+                  columnUpdated="columnUpdated"
+    }}
   {{/each}}
   <tr class="new-settings text-center">
     <td colspan="5">

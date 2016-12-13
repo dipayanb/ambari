@@ -1,73 +1,99 @@
-{{#if column.editing}}
-  <td>{{input type="text" class="form-control" value=name}}</td>
-  <td>
-    {{#power-select
-      selected=selectedType
-      options=datatypes
-      searchField="label"
-      searchPlaceholder="Enter data type"
-      onchange=(action "typeSelectionMade") as |parameter|}}
-      {{parameter.label}}
-    {{/power-select}}
-  </td>
-  <td>
-    <a {{action "advanceOptionToggle"}}>{{fa-icon "cog" size="lg"}}</a>
-    {{#if advancedOption}}
-      {{#modal-dialog
-        close="advanceOptionToggle"
-        translucentOverlay=true
-        clickOutsideToClose=true
-        container-class="modal-dialog"}}
-        <div class="modal-content">
-          <div class="modal-header text-danger">
-            <button type="button" class="close" {{action "advanceOptionToggle"}}><span aria-hidden="true">&times;</span></button>
-            <h4 class="modal-title">{{fa-icon "cog" size="lg"}} Advance Column Options</h4>
-          </div>
-          <div class="modal-body">
-            <div class="form-horizontal">
-              {{#if hasPrecision}}
-                <div class="form-group">
-                  <label for="inputEmail3" class="col-sm-2 control-label">Precision</label>
-                  <div class="col-sm-10">
-                    {{input type="text" class="form-control" placeholder="Precision"}}
-                  </div>
-                </div>
-              {{/if}}
-              {{#if hasScale}}
-                <div class="form-group">
-                  <label for="inputPassword3" class="col-sm-2 control-label">Scale</label>
-                  <div class="col-sm-10">
-                    {{input type="text" class="form-control" placeholder="Scale"}}
-                  </div>
-                </div>
-              {{/if}}
-              <div class="form-group">
-                <label for="inputPassword3" class="col-sm-2 control-label">Comment</label>
-                <div class="col-sm-10">
-                  {{input type="text" class="form-control" placeholder="Comment"}}
-                </div>
-              </div>
+<td>
+  <div class="{{if column.nameError 'has-error'}}">
+    {{input type="text" class="form-control" value=column.name disabled=(not column.editing)}}
+    {{#if column.nameError}}
+      <span class="help-block">{{column.nameError.error}}</span>
+    {{/if}}
+  </div>
 
-              <div class="form-group">
-                <div class="col-sm-offset-2 col-sm-10">
-                  <div class="checkbox">
-                    <label>
-                      {{input type="checkbox"}} Partition Column
-                    </label>
-                  </div>
+</td>
+<td>
+  {{#power-select
+    disabled=notEditing
+    selected=column.type
+    options=datatypes
+    searchField="label"
+    searchPlaceholder="Enter data type"
+    onchange=(action "typeSelectionMade") as |parameter|}}
+    {{parameter.label}}
+  {{/power-select}}
+</td>
+<td>
+  {{#if (or hasPrecision hasScale)}}
+    <div class="row">
+      {{#if hasPrecision}}
+        <div class="{{if hasScale 'col-md-6' 'col-md-12'}}">
+          <div class="{{if column.precisionError 'has-error'}}">
+            {{input type="text" class="form-control" placeholder="Precision" value=column.precision disabled=(not column.editing)}}
+            {{#if column.precisionError}}
+              <span class="help-block">{{column.precisionError.error}}</span>
+            {{/if}}
+          </div>
+        </div>
+      {{/if}}
+      {{#if hasScale}}
+        <div class="{{if hasPrecision 'col-md-6' 'col-md-12'}}">
+          <div class="{{if column.scaleError 'has-error'}}">
+            {{input type="text" class="form-control" placeholder="Scale" value=column.scale disabled=(not column.editing)}}
+            {{#if column.scaleError}}
+              <span class="help-block">{{column.scaleError.error}}</span>
+            {{/if}}
+          </div>
+        </div>
+      {{/if}}
+    </div>
+  {{/if}}
+
+</td>
+<td>
+  <div class="text-center">
+    <a {{action "advanceOptionToggle"}}>{{fa-icon "cog" size="lg"}}</a>
+  </div>
+  {{#if advancedOption}}
+    {{#modal-dialog
+      close="advanceOptionToggle"
+      translucentOverlay=true
+      clickOutsideToClose=true
+      container-class="modal-dialog"}}
+      <div class="modal-content">
+        <div class="modal-header text-danger">
+          <button type="button" class="close" {{action "advanceOptionToggle"}}><span aria-hidden="true">&times;</span></button>
+          <h4 class="modal-title">{{fa-icon "cog" size="lg"}} Advance Column Options</h4>
+        </div>
+        <div class="modal-body">
+          <div class="form-horizontal">
+            <div class="form-group">
+              <label for="inputPassword3" class="col-sm-2 control-label">Comment</label>
+              <div class="col-sm-10">
+                {{input type="text" class="form-control" placeholder="Comment" value=column.comment disabled=(not column.editing)}}
+              </div>
+            </div>
+
+            <div class="form-group">
+              <div class="col-sm-offset-2 col-sm-10">
+                <div class="checkbox">
+                  <label>
+                    {{input type="checkbox" checked=column.isPartitionColumn disabled=(not column.editing)}} Partition Column
+                  </label>
                 </div>
               </div>
             </div>
           </div>
-          <div class="modal-footer">
-            <button type="button" class="btn btn-success" {{action "advanceOptionToggle"}}>{{fa-icon "check"}} Done</button>
-          </div>
-        </div><!-- /.modal-content -->
-      {{/modal-dialog}}
-    {{/if}}
-  </td>
-  <td>
-    <button class="btn btn-success" {{action "add"}}>{{fa-icon "save"}} Add</button>
-    <button class="btn btn-danger" {{action "cancel"}}>{{fa-icon "times"}} cancel</button>
-  </td>
-{{/if}}
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-success" {{action "advanceOptionToggle"}}>{{fa-icon "check"}} Done</button>
+        </div>
+      </div>
+    {{/modal-dialog}}
+  {{/if}}
+</td>
+<td>
+  <div class="text-center">
+    {{#unless column.editing}}
+      <button class="btn btn-success" {{action "edit"}}>{{fa-icon "check"}} Edit</button>
+    {{/unless}}
+    <button class="btn btn-danger" {{action "cancel"}}>{{fa-icon "times"}} Delete</button>
+  </div>
+
+
+</td>

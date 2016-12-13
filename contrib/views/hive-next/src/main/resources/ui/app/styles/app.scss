@@ -137,6 +137,12 @@ $table-info-background: lighten($body-bg, 10%);
   }
 }
 
+.table-name-input {
+  padding-top: 10px;
+  margin-bottom: -1px;
+  border-bottom: 1px solid darken($table-info-background, 25%);
+}
+
 pre {
   &.table-info-json {
     border: none;
@@ -212,6 +218,8 @@ pre {
     //padding-right: 5px;
   }
 }
+
+
 
 
 

@@ -1,6 +1,8 @@
 import Ember from 'ember';
 
 export default Ember.Component.extend({
+  columns: [],
+  columnsCount: Ember.computed.alias('columns.length'),
 
   didReceiveAttrs() {
     let firstTab = this.get('tabs.firstObject')

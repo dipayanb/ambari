@@ -8,6 +8,14 @@ export default Ember.Component.extend({
     addNewColumn() {
       let newEmptyColumn = Column.create({editing: true});
       this.get('columns').pushObject(newEmptyColumn);
+    },
+
+    columnDeleted(column) {
+      this.get('columns').removeObject(column);
+    },
+
+    columnUpdated() {
+
     }
   }
 });
