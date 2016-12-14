@@ -219,6 +219,45 @@ pre {
   }
 }
 
+.hdfs-viewer {
+  .modal-header {
+    p {
+      margin-top: 10px;
+      margin-bottom: 0;
+    }
+  }
+  .hdfs-viewer-wrap {
+    max-height: 300px;
+    border: 1px solid darken($table-info-background, 15%);
+    overflow-y: scroll;
+  }
+}
+
+.create-table-advanced-wrap {
+  padding: 10px;
+}
+
+.fileformat-custom-row {
+  margin-top: 10px;
+  border-top: 1px solid darken($table-info-background, 15%);
+  padding-top: 10px;
+}
+
+.rowformat-custom-row {
+  a {
+    i {
+      margin-top: 10px;
+    }
+  }
+}
+
+.alert {
+  &.create-table-error {
+    margin: 0;
+  }
+}
+
+
 
 
 

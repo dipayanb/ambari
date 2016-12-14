@@ -9,5 +9,16 @@ export default Ember.Route.extend({
   setupController(controller, model) {
     this._super(controller, model);
     controller.set('tabs', Ember.copy(tabs));
+  },
+
+  actions: {
+    cancel() {
+      let databaseController = this.controllerFor('databases.database');
+      this.transitionTo('databases.database', databaseController.get('model'));
+    },
+
+    create(settings) {
+      console.log("Coming here to create!!!", settings);
+    }
   }
 });

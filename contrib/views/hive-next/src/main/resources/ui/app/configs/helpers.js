@@ -17,6 +17,7 @@
  */
 
 import Ember from 'ember';
+import nonPrintableChars from './non-printable-escape-chars';
 
 /* globals moment */
 
@@ -134,6 +135,17 @@ export default Ember.Object.create({
     }
 
     return formattedVal.join(' ');
+  },
+
+  /**
+   * Returns all Ascii characters which will be used to fill the termination characters
+   */
+  getAllTerminationCharacters() {
+    let arr = Ember.copy(nonPrintableChars);
+    for(let i=33; i < 127; i++) {
+      arr.pushObject({id: i.toString(), name: String.fromCodePoint(i)});
+    }
+    return arr;
   }
 
 });

@@ -11,7 +11,7 @@ export default Ember.Object.extend({
   comment: '',
 
 
-  hasError: Ember.computed('errors', function() { return this.get('errors.length') !== 0; }),
+  hasError: Ember.computed('errors.@each', function() { return this.get('errors.length') !== 0; }),
   errors: [],
 
   nameError: Ember.computed('errors.@each', function() {
@@ -35,9 +35,13 @@ export default Ember.Object.extend({
   // Control the UI
   editing: false,
 
+  clearError() {
+    this.set('errors', []);
+  },
+
 
   validate() {
-    this.set('errors', []);
+    this.clearError();
     if (Ember.isEmpty(this.get('name'))) {
       this.get('errors').pushObject({type: 'name', error: "name cannot be empty"});
     }

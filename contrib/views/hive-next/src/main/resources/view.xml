@@ -322,6 +322,11 @@
         <service-class>org.apache.ambari.view.hive2.resources.browser.DDLService</service-class>
     </resource>
 
+    <resource>
+        <name>files</name>
+        <service-class>org.apache.ambari.view.hive2.resources.browser.FileService</service-class>
+    </resource>
+
     <persistence>
         <entity>
             <class>org.apache.ambari.view.hive2.resources.jobs.viewJobs.JobImpl</class>

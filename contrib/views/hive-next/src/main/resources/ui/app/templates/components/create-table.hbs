@@ -1,9 +1,12 @@
 <div class="row">
   <div class="col-md-12 form-horizontal table-name-input">
-    <div class="form-group">
-      <label for="inputEmail3" class="col-md-1 control-label">Name</label>
+    <div class="form-group {{if hasTableNameError 'has-error'}}">
+      <label class="col-md-1 control-label">Name</label>
       <div class="col-md-11">
-        <input type="email" class="form-control" id="inputEmail3" placeholder="Table name">
+        {{input type="text" class="form-control" placeholder="Table name" value=tableName}}
+        {{#if hasTableNameError}}
+          <span class="help-block">Name cannot be empty</span>
+        {{/if}}
       </div>
     </div>
   </div>
@@ -18,13 +21,18 @@
     {{#each tabs as |tab|}}
       {{#if tab.active}}
         {{#if (eq tab.link "create.table.columns")}}
+          {{#if hasEmptyColumnsError}}
+            <div class="alert alert-danger create-table-error">
+              {{emptyColumnsErrorText}}
+            </div>
+          {{/if}}
           {{table-columns columns=columns}}
         {{/if}}
         {{#if (eq tab.link "create.table.properties")}}
-          {{table-properties}}
+          {{table-properties properties=properties}}
         {{/if}}
         {{#if (eq tab.link "create.table.advanced")}}
-          {{table-advanced-settings}}
+          {{table-advanced-settings settings=settings}}
         {{/if}}
       {{/if}}
     {{/each}}
@@ -32,6 +40,6 @@
 
 </div>
 <div class="create-table-controls">
-  <button class="btn btn-success">{{fa-icon "plus"}} Create</button>
-  <button class="btn btn-warning">{{fa-icon "times"}} Cancel</button>
+  <button class="btn btn-success" {{action "create"}}>{{fa-icon "plus"}} Create</button>
+  <button class="btn btn-warning" {{action "cancel"}}>{{fa-icon "times"}} Cancel</button>
 </div>
