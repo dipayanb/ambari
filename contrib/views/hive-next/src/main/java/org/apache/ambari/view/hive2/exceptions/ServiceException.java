@@ -16,10 +16,25 @@
 * limitations under the License.
 */
 
-package org.apache.ambari.view.hive2.internal.query.generators;
+package org.apache.ambari.view.hive2.exceptions;
 
-import org.apache.ambari.view.hive2.exceptions.ServiceException;
+public class ServiceException extends Exception {
+  public ServiceException() {
+  }
 
-public interface QueryGenerator {
-  String getQuery() throws ServiceException;
+  public ServiceException(String message) {
+    super(message);
+  }
+
+  public ServiceException(String message, Throwable cause) {
+    super(message, cause);
+  }
+
+  public ServiceException(Throwable cause) {
+    super(cause);
+  }
+
+  public ServiceException(String message, Throwable cause, boolean enableSuppression, boolean writableStackTrace) {
+    super(message, cause, enableSuppression, writableStackTrace);
+  }
 }

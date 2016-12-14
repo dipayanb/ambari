@@ -18,12 +18,13 @@
 
 package org.apache.ambari.view.hive2.internal.dto;
 
+import java.io.Serializable;
 import java.util.List;
 
 /**
  *
  */
-public class TableMeta {
+public class TableMeta implements Serializable{
   private String id;
   private String database;
   private String table;

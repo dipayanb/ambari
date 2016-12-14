@@ -33,6 +33,7 @@ import org.apache.ambari.view.hive2.client.ConnectionConfig;
 import org.apache.ambari.view.hive2.client.DDLDelegator;
 import org.apache.ambari.view.hive2.client.DDLDelegatorImpl;
 import org.apache.ambari.view.hive2.client.Row;
+import org.apache.ambari.view.hive2.exceptions.ServiceException;
 import org.apache.ambari.view.hive2.internal.dto.DatabaseInfo;
 import org.apache.ambari.view.hive2.internal.dto.DatabaseResponse;
 import org.apache.ambari.view.hive2.internal.dto.TableInfo;
@@ -40,13 +41,13 @@ import org.apache.ambari.view.hive2.internal.dto.TableMeta;
 import org.apache.ambari.view.hive2.internal.dto.TableResponse;
 import org.apache.ambari.view.hive2.internal.parsers.TableMetaParserImpl;
 import org.apache.ambari.view.hive2.internal.query.generators.CreateTableQueryGenerator;
+import org.apache.ambari.view.hive2.internal.query.generators.DeleteTableQueryGenerator;
 import org.apache.ambari.view.hive2.resources.jobs.JobServiceInternal;
 import org.apache.ambari.view.hive2.resources.jobs.viewJobs.Job;
 import org.apache.ambari.view.hive2.resources.jobs.viewJobs.JobController;
 import org.apache.ambari.view.hive2.resources.jobs.viewJobs.JobImpl;
 import org.apache.ambari.view.hive2.resources.jobs.viewJobs.JobResourceManager;
 import org.apache.ambari.view.hive2.utils.ServiceFormattedException;
-import org.apache.hadoop.yarn.webapp.WebAppException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import scala.concurrent.duration.Duration;
@@ -204,24 +205,47 @@ public class DDLProxy {
   }
 
 
-  public Job createTable(String databaseName, TableMeta tableMeta, JobResourceManager resourceManager) {
-    if (Strings.isNullOrEmpty(tableMeta.getDatabase())) {
-      tableMeta.setDatabase(databaseName);
+  public Job createTable(String databaseName, TableMeta tableMeta, JobResourceManager resourceManager) throws ServiceException {
+
+      if (Strings.isNullOrEmpty(tableMeta.getDatabase())) {
+        tableMeta.setDatabase(databaseName);
+      }
+      String createTableQuery = new CreateTableQueryGenerator(tableMeta).getQuery();
+      LOG.info("creating table with query : {}", createTableQuery);
+      Map jobInfo = new HashMap<>();
+      jobInfo.put("title", "Create table " + tableMeta.getDatabase() + "." + tableMeta.getTable());
+      jobInfo.put("forcedContent", createTableQuery);
+      jobInfo.put("dataBase", databaseName);
+
+    try {
+      Job job = new JobImpl(jobInfo);
+      JobController createdJobController = new JobServiceInternal().createJob(job, resourceManager);
+      Job returnableJob = createdJobController.getJobPOJO();
+      LOG.info("returning job with id {} for create table {}", returnableJob.getId(), tableMeta.getTable());
+      return returnableJob;
+    } catch (Throwable e) {
+      LOG.error("Exception occurred while creating the table for create Query : {}", createTableQuery, e);
+      throw new ServiceException(e);
     }
-    String createTableQuery = new CreateTableQueryGenerator(tableMeta).getQuery();
+  }
+
+  public Job deleteTable(String databaseName, String tableName, JobResourceManager resourceManager) throws ServiceException {
+    String deleteTableQuery = new DeleteTableQueryGenerator(databaseName, tableName).getQuery();
+    LOG.info("deleting table {} with query {}", databaseName + "." + tableName, deleteTableQuery );
     Map jobInfo = new HashMap<>();
-    jobInfo.put("title", "Internal Job");
-    jobInfo.put("forcedContent", createTableQuery);
+    jobInfo.put("title", "Delete table " + databaseName + "." + tableName);
+    jobInfo.put("forcedContent", deleteTableQuery);
     jobInfo.put("dataBase", databaseName);
 
-    Job job = null;
     try {
-      job = new JobImpl(jobInfo);
+      Job job = new JobImpl(jobInfo);
       JobController createdJobController = new JobServiceInternal().createJob(job, resourceManager);
-      return createdJobController.getJob();
+      Job returnableJob = createdJobController.getJobPOJO();
+      LOG.info("returning job with id {} for the deletion of table : {}", returnableJob.getId(), tableName);
+      return returnableJob;
     } catch (Throwable e) {
-      LOG.error("Exception occurred while creating the table for create Query : {}", createTableQuery);
-      throw new WebAppException(e);
+      LOG.error("Exception occurred while deleting the table for delete Query : {}", deleteTableQuery, e);
+      throw new ServiceException(e);
     }
   }
 }

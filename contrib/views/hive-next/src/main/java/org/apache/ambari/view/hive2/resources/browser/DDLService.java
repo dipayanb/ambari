@@ -20,17 +20,21 @@ package org.apache.ambari.view.hive2.resources.browser;
 
 import org.apache.ambari.view.hive2.BaseService;
 import org.apache.ambari.view.hive2.client.ConnectionConfig;
+import org.apache.ambari.view.hive2.exceptions.ServiceException;
 import org.apache.ambari.view.hive2.internal.dto.DatabaseResponse;
 import org.apache.ambari.view.hive2.internal.dto.TableMeta;
 import org.apache.ambari.view.hive2.internal.dto.TableResponse;
 import org.apache.ambari.view.hive2.resources.jobs.viewJobs.Job;
 import org.apache.ambari.view.hive2.resources.jobs.viewJobs.JobResourceManager;
+import org.apache.ambari.view.hive2.utils.ServiceFormattedException;
 import org.apache.ambari.view.hive2.utils.SharedObjectsFactory;
 import org.json.simple.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.inject.Inject;
+import javax.ws.rs.Consumes;
+import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
@@ -101,19 +105,44 @@ public class DDLService extends BaseService {
   @POST
   @Path("databases/{database_id}/tables")
   @Produces(MediaType.APPLICATION_JSON)
+  @Consumes(MediaType.APPLICATION_JSON)
   public Response createTable(@PathParam("database_id") String databaseName, TableMeta tableMeta) {
+    try {
     Job job = proxy.createTable(databaseName, tableMeta, getResourceManager());
-    return Response.ok(job).build();
+    JSONObject response = new JSONObject();
+    response.put("job", job);
+    return Response.status(Response.Status.ACCEPTED).entity(job).build();
+    } catch (ServiceException e) {
+      LOG.error("Exception occurred while creatint table for db {} with details : {}", databaseName, tableMeta, e);
+      throw new ServiceFormattedException(e);
+    }
   }
 
   @GET
   @Path("databases/{database_id}/tables/{table_id}")
   @Produces(MediaType.APPLICATION_JSON)
+  @Consumes(MediaType.APPLICATION_JSON)
   public Response getTable(@PathParam("database_id") String databaseName, @PathParam("table_id") String tableName) {
     TableResponse table = proxy.getTable(databaseName, tableName);
     JSONObject response = new JSONObject();
     response.put("table", table);
     return Response.ok(response).build();
+  }
+
+  @DELETE
+  @Path("databases/{database_id}/tables/{table_id}")
+  @Produces(MediaType.APPLICATION_JSON)
+  @Consumes(MediaType.APPLICATION_JSON)
+  public Response deleteTable(@PathParam("database_id") String databaseName, @PathParam("table_id") String tableName) {
+    try {
+    Job job = proxy.deleteTable(databaseName, tableName, getResourceManager());
+    JSONObject response = new JSONObject();
+    response.put("job", job);
+    return Response.status(Response.Status.ACCEPTED).entity(response).build();
+    } catch (ServiceException e) {
+      LOG.error("Exception occurred while deleting table for db {}, tableName : {}", databaseName, tableName, e);
+      throw new ServiceFormattedException(e);
+    }
   }
 
   @GET

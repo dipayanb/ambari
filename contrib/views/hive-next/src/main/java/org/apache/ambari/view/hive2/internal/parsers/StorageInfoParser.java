@@ -18,16 +18,29 @@
 
 package org.apache.ambari.view.hive2.internal.parsers;
 
+import com.google.common.base.Function;
+import com.google.common.base.Predicate;
+import com.google.common.collect.FluentIterable;
 import org.apache.ambari.view.hive2.client.Row;
+import org.apache.ambari.view.hive2.internal.dto.ColumnOrder;
+import org.apache.ambari.view.hive2.internal.dto.Order;
 import org.apache.ambari.view.hive2.internal.dto.StorageInfo;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
+import javax.annotation.Nullable;
+import java.util.Arrays;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * Parses the Storage Information from the describe formatted output.
  */
 public class StorageInfoParser extends AbstractTableMetaParser<StorageInfo> {
+  private static final Logger LOG = LoggerFactory.getLogger(StorageInfoParser.class);
 
 
   public StorageInfoParser() {
@@ -44,10 +57,44 @@ public class StorageInfoParser extends AbstractTableMetaParser<StorageInfo> {
     info.setOutputFormat(getString(parsedSection, "OutputFormat:"));
     info.setCompressed(getString(parsedSection, "Compressed:"));
     info.setNumBuckets(getString(parsedSection, "Num Buckets:"));
-    info.setBucketCols(getString(parsedSection, "Bucket Columns:"));
-    info.setSortCols(getString(parsedSection, "Sort Columns:"));
+    info.setBucketCols(parseBucketColumns(getString(parsedSection, "Bucket Columns:")));
+    info.setSortCols(parseSortCols(getString(parsedSection, "Sort Columns:")));
     info.setParameters(getMap(parsedSection, "Storage Desc Params:"));
 
     return info;
+  }
+
+  private List<String> parseBucketColumns(String string) {
+    String[] strings = string.split("[\\[\\],]");
+    return FluentIterable.from(Arrays.asList(strings)).filter(new Predicate<String>() {
+      @Override
+      public boolean apply(@Nullable String input) {
+        return !(null == input || input.trim().length() == 0) ;
+      }
+    }).transform(new Function<String, String>() {
+      @Override
+      public String apply(String input) {
+        return input.trim();
+      }
+    }).toList();
+  }
+
+  private List<ColumnOrder> parseSortCols(String str) {
+    String patternStr = "Order\\s*\\(\\s*col\\s*:\\s*([^,]+)\\s*,\\s*order\\s*:\\s*(\\d)\\s*\\)";
+    Pattern pattern = Pattern.compile(patternStr);
+
+    Matcher matcher = pattern.matcher(str);
+
+    LinkedList<ColumnOrder> list = new LinkedList<>();
+    while(matcher.find()){
+      String colName = matcher.group(1);
+      String orderString = matcher.group(2);
+      Order order = Order.fromOrdinal(Integer.valueOf(orderString));
+      ColumnOrder co = new ColumnOrder(colName, order);
+      list.add(co);
+      LOG.debug("columnOrder : {}", co);
+    }
+
+    return list;
   }
 }

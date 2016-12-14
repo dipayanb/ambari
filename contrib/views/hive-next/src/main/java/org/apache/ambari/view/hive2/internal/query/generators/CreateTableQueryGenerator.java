@@ -23,9 +23,11 @@ import com.google.common.base.Joiner;
 import com.google.common.base.Strings;
 import com.google.common.collect.FluentIterable;
 import org.apache.ambari.view.hive2.internal.dto.ColumnInfo;
+import org.apache.ambari.view.hive2.internal.dto.ColumnOrder;
 import org.apache.ambari.view.hive2.internal.dto.TableMeta;
 
 import javax.annotation.Nullable;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
@@ -49,82 +51,105 @@ public class CreateTableQueryGenerator implements QueryGenerator{
     query.append(tableMeta.getDatabase()).append(".");
     query.append(tableMeta.getTable()).append(" ");
     query.append("(").append(getColumnQuery(tableMeta.getColumns())).append(") ");
-    String tableComment = tableMeta.getDetailedInfo().getParameters().get(COMMENT);
-    if(!Strings.isNullOrEmpty(tableComment)){
-      query.append(" COMMENT ").append(tableComment);
+    if(null != tableMeta.getDetailedInfo() && null != tableMeta.getDetailedInfo().getParameters()){
+      String tableComment = tableMeta.getDetailedInfo().getParameters().get(COMMENT);
+      if(!Strings.isNullOrEmpty(tableComment)){
+        query.append(" COMMENT ").append(tableComment);
+      }
     }
-    if( tableMeta.getPartitionInfo().getColumns() != null && !tableMeta.getPartitionInfo().getColumns().isEmpty() ){
-      query.append(" PARTITIONED BY ( ").append(getColumnQuery(tableMeta.getPartitionInfo().getColumns())).append(")");
+    if(null != tableMeta.getPartitionInfo() ) {
+      if (tableMeta.getPartitionInfo().getColumns() != null && !tableMeta.getPartitionInfo().getColumns().isEmpty()) {
+        query.append(" PARTITIONED BY ( ").append(getColumnQuery(tableMeta.getPartitionInfo().getColumns())).append(")");
+      }
     }
-//    if( !Strings.isNullOrEmpty(tableMeta.getStorageInfo().getBucketCols())){
-//      query.append(" CLUSTERED BY (").append(tableMeta.getStorageInfo().getBucketCols()).append(")");
-//    }
-    if( !Strings.isNullOrEmpty(tableMeta.getStorageInfo().getSortCols())){
-      query.append(" SORTED BY (").append(tableMeta.getStorageInfo().getSortCols()).append(")");
-    }
-    if(!Strings.isNullOrEmpty(tableMeta.getStorageInfo().getNumBuckets())){
-      query.append(" INTO ").append(tableMeta.getStorageInfo().getNumBuckets()).append(" BUCKETS ");
-    }
-    // TODO : Skewed information not available right now.
+    if(null != tableMeta.getStorageInfo()) {
+      if (!isNullOrEmpty(tableMeta.getStorageInfo().getBucketCols())) {
+        query.append(" CLUSTERED BY (").append(Joiner.on(",").join(tableMeta.getStorageInfo().getBucketCols())).append(")");
+      }
+      if (!isNullOrEmpty(tableMeta.getStorageInfo().getSortCols())) {
+        query.append(" SORTED BY (").append(getSortColQuery(tableMeta.getStorageInfo().getSortCols())).append(")");
+      }
+      if (!Strings.isNullOrEmpty(tableMeta.getStorageInfo().getNumBuckets())) {
+        query.append(" INTO ").append(tableMeta.getStorageInfo().getNumBuckets()).append(" BUCKETS ");
+      }
+      // TODO : Skewed information not available right now.
 
-    if( !Strings.isNullOrEmpty(tableMeta.getStorageInfo().getParameters().get(ESCAPE_DELIM)) ||
-      !Strings.isNullOrEmpty(tableMeta.getStorageInfo().getParameters().get(FIELD_DELIM)) ||
-      !Strings.isNullOrEmpty(tableMeta.getStorageInfo().getParameters().get(COLELCTION_DELIM)) ||
-      !Strings.isNullOrEmpty(tableMeta.getStorageInfo().getParameters().get(MAPKEY_DELIM)) ||
-      !Strings.isNullOrEmpty(tableMeta.getStorageInfo().getParameters().get(LINE_DELIM)) ||
-      !Strings.isNullOrEmpty(tableMeta.getStorageInfo().getParameters().get(SERIALIZATION_NULL_FORMAT))
-      ){
-      query.append(" ROW FORMAT DELIMITED ");
-      if(!Strings.isNullOrEmpty(tableMeta.getStorageInfo().getParameters().get(FIELD_DELIM))){
-        query.append(" FIELDS TERMINATED BY '").append(tableMeta.getStorageInfo().getParameters().get(FIELD_DELIM)).append("'");
-      }
-      if(!Strings.isNullOrEmpty(tableMeta.getStorageInfo().getParameters().get(ESCAPE_DELIM))){
-        query.append(" ESCAPED BY '").append(tableMeta.getStorageInfo().getParameters().get(ESCAPE_DELIM)).append("'");
-      }
-      if(!Strings.isNullOrEmpty(tableMeta.getStorageInfo().getParameters().get(COLELCTION_DELIM))){
-        query.append(" COLLECTION ITEMS TERMINATED BY '").append(tableMeta.getStorageInfo().getParameters().get(COLELCTION_DELIM)).append("'");
-      }
-      if(!Strings.isNullOrEmpty(tableMeta.getStorageInfo().getParameters().get(MAPKEY_DELIM))){
-        query.append(" MAP KEYS TERMINATED BY '").append(tableMeta.getStorageInfo().getParameters().get(MAPKEY_DELIM)).append("'");
-      }
-      if(!Strings.isNullOrEmpty(tableMeta.getStorageInfo().getParameters().get(LINE_DELIM))){
-        query.append(" LINES TERMINATED BY '").append(tableMeta.getStorageInfo().getParameters().get(LINE_DELIM)).append("'");
-      }
-      if(!Strings.isNullOrEmpty(tableMeta.getStorageInfo().getParameters().get(SERIALIZATION_NULL_FORMAT))){
-        query.append(" NULL DEFINED AS '").append(tableMeta.getStorageInfo().getParameters().get(SERIALIZATION_NULL_FORMAT)).append("'");
-      }
-    }
-
-    if(!Strings.isNullOrEmpty(tableMeta.getStorageInfo().getInputFormat()) ||
-      !Strings.isNullOrEmpty(tableMeta.getStorageInfo().getOutputFormat())
-      ){
-      query.append(" STORED AS ");
-      if(!Strings.isNullOrEmpty(tableMeta.getStorageInfo().getInputFormat())){
-        query.append(" INPUTFORMAT '").append(tableMeta.getStorageInfo().getInputFormat()).append("'");
-      }
-      if(!Strings.isNullOrEmpty(tableMeta.getStorageInfo().getOutputFormat())){
-        query.append(" OUTPUTFORMAT '").append(tableMeta.getStorageInfo().getOutputFormat()).append("'");
-      }
-    }
-
-    if(!Strings.isNullOrEmpty(tableMeta.getDetailedInfo().getLocation())){
-      query.append(" LOCATION '").append(tableMeta.getDetailedInfo().getLocation()).append("'");
-    }
-
-    if( null != tableMeta.getDetailedInfo().getParameters() && !tableMeta.getDetailedInfo().getParameters().isEmpty()){
-      List<String> props = FluentIterable.from(tableMeta.getDetailedInfo().getParameters().entrySet())
-        .transform(new Function<Map.Entry<String,String>, String>() {
-        @Nullable
-        @Override
-        public String apply(@Nullable Map.Entry<String, String> entry) {
-          return "'" + entry.getKey() + "'='" + entry.getValue() + "'";
+      if (!Strings.isNullOrEmpty(tableMeta.getStorageInfo().getParameters().get(ESCAPE_DELIM)) ||
+        !Strings.isNullOrEmpty(tableMeta.getStorageInfo().getParameters().get(FIELD_DELIM)) ||
+        !Strings.isNullOrEmpty(tableMeta.getStorageInfo().getParameters().get(COLELCTION_DELIM)) ||
+        !Strings.isNullOrEmpty(tableMeta.getStorageInfo().getParameters().get(MAPKEY_DELIM)) ||
+        !Strings.isNullOrEmpty(tableMeta.getStorageInfo().getParameters().get(LINE_DELIM)) ||
+        !Strings.isNullOrEmpty(tableMeta.getStorageInfo().getParameters().get(SERIALIZATION_NULL_FORMAT))
+        ) {
+        query.append(" ROW FORMAT DELIMITED ");
+        if (!Strings.isNullOrEmpty(tableMeta.getStorageInfo().getParameters().get(FIELD_DELIM))) {
+          query.append(" FIELDS TERMINATED BY '").append(tableMeta.getStorageInfo().getParameters().get(FIELD_DELIM)).append("'");
         }
-      }).toList();
+        if (!Strings.isNullOrEmpty(tableMeta.getStorageInfo().getParameters().get(ESCAPE_DELIM))) {
+          query.append(" ESCAPED BY '").append(tableMeta.getStorageInfo().getParameters().get(ESCAPE_DELIM)).append("'");
+        }
+        if (!Strings.isNullOrEmpty(tableMeta.getStorageInfo().getParameters().get(COLELCTION_DELIM))) {
+          query.append(" COLLECTION ITEMS TERMINATED BY '").append(tableMeta.getStorageInfo().getParameters().get(COLELCTION_DELIM)).append("'");
+        }
+        if (!Strings.isNullOrEmpty(tableMeta.getStorageInfo().getParameters().get(MAPKEY_DELIM))) {
+          query.append(" MAP KEYS TERMINATED BY '").append(tableMeta.getStorageInfo().getParameters().get(MAPKEY_DELIM)).append("'");
+        }
+        if (!Strings.isNullOrEmpty(tableMeta.getStorageInfo().getParameters().get(LINE_DELIM))) {
+          query.append(" LINES TERMINATED BY '").append(tableMeta.getStorageInfo().getParameters().get(LINE_DELIM)).append("'");
+        }
+        if (!Strings.isNullOrEmpty(tableMeta.getStorageInfo().getParameters().get(SERIALIZATION_NULL_FORMAT))) {
+          query.append(" NULL DEFINED AS '").append(tableMeta.getStorageInfo().getParameters().get(SERIALIZATION_NULL_FORMAT)).append("'");
+        }
+      }
 
-      query.append(" TBLPROPERTIES (").append(Joiner.on(",").join(props)).append(")");
+      if (!Strings.isNullOrEmpty(tableMeta.getStorageInfo().getInputFormat()) ||
+        !Strings.isNullOrEmpty(tableMeta.getStorageInfo().getOutputFormat())
+        ) {
+        query.append(" STORED AS ");
+        if (!Strings.isNullOrEmpty(tableMeta.getStorageInfo().getInputFormat())) {
+          query.append(" INPUTFORMAT '").append(tableMeta.getStorageInfo().getInputFormat()).append("'");
+        }
+        if (!Strings.isNullOrEmpty(tableMeta.getStorageInfo().getOutputFormat())) {
+          query.append(" OUTPUTFORMAT '").append(tableMeta.getStorageInfo().getOutputFormat()).append("'");
+        }
+      }
+    }
+
+    if(null != tableMeta.getDetailedInfo()) {
+      if (!Strings.isNullOrEmpty(tableMeta.getDetailedInfo().getLocation())) {
+        query.append(" LOCATION '").append(tableMeta.getDetailedInfo().getLocation()).append("'");
+      }
+
+      if (null != tableMeta.getDetailedInfo().getParameters() && !tableMeta.getDetailedInfo().getParameters().isEmpty()) {
+        List<String> props = FluentIterable.from(tableMeta.getDetailedInfo().getParameters().entrySet())
+          .transform(new Function<Map.Entry<String, String>, String>() {
+            @Nullable
+            @Override
+            public String apply(@Nullable Map.Entry<String, String> entry) {
+              return "'" + entry.getKey() + "'='" + entry.getValue() + "'";
+            }
+          }).toList();
+
+        query.append(" TBLPROPERTIES (").append(Joiner.on(",").join(props)).append(")");
+      }
     }
 
     return query.toString();
+  }
+
+  private boolean isNullOrEmpty(Collection collection) {
+    return null == collection || collection.isEmpty();
+  }
+
+  private String getSortColQuery(List<ColumnOrder> sortCols) {
+    List<String> sortColsList = FluentIterable.from(sortCols).transform(new Function<ColumnOrder, String>() {
+      @Nullable
+      @Override
+      public String apply(@Nullable ColumnOrder input) {
+        return input.getColumnName() + " " + input.getOrder().name();
+      }
+    }).toList();
+    return Joiner.on(",").join(sortColsList);
   }
 
   private String getColumnQuery(List<ColumnInfo> columns) {

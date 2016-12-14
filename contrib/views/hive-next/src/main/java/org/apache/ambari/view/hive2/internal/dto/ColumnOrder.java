@@ -16,10 +16,39 @@
 * limitations under the License.
 */
 
-package org.apache.ambari.view.hive2.internal.query.generators;
+package org.apache.ambari.view.hive2.internal.dto;
 
-import org.apache.ambari.view.hive2.exceptions.ServiceException;
+public class ColumnOrder {
+  private String columnName;
+  private Order order;
 
-public interface QueryGenerator {
-  String getQuery() throws ServiceException;
+  public ColumnOrder(String columnName, Order order) {
+    this.columnName = columnName;
+    this.order = order;
+  }
+
+  public String getColumnName() {
+    return columnName;
+  }
+
+  public void setColumnName(String columnName) {
+    this.columnName = columnName;
+  }
+
+  public Order getOrder() {
+    return order;
+  }
+
+  public void setOrder(Order order) {
+    this.order = order;
+  }
+
+  @Override
+  public String toString() {
+    final StringBuilder sb = new StringBuilder("ColumnOrder{");
+    sb.append("columnName='").append(columnName).append('\'');
+    sb.append(", order=").append(order);
+    sb.append('}');
+    return sb.toString();
+  }
 }

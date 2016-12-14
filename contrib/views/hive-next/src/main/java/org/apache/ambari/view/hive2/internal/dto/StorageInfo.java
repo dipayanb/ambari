@@ -18,6 +18,7 @@
 
 package org.apache.ambari.view.hive2.internal.dto;
 
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -29,8 +30,8 @@ public class StorageInfo {
   private String outputFormat;
   private String compressed;
   private String numBuckets;
-  private String bucketCols;
-  private String sortCols;
+  private List<String> bucketCols;
+  private List<ColumnOrder> sortCols;
   private Map<String, String> parameters;
 
   public String getSerdeLibrary() {
@@ -73,19 +74,19 @@ public class StorageInfo {
     this.numBuckets = numBuckets;
   }
 
-  public String getBucketCols() {
+  public List<String> getBucketCols() {
     return bucketCols;
   }
 
-  public void setBucketCols(String bucketCols) {
+  public void setBucketCols(List<String> bucketCols) {
     this.bucketCols = bucketCols;
   }
 
-  public String getSortCols() {
+  public List<ColumnOrder> getSortCols() {
     return sortCols;
   }
 
-  public void setSortCols(String sortCols) {
+  public void setSortCols(List<ColumnOrder> sortCols) {
     this.sortCols = sortCols;
   }
 

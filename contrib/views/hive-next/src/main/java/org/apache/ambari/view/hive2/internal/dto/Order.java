@@ -16,10 +16,22 @@
 * limitations under the License.
 */
 
-package org.apache.ambari.view.hive2.internal.query.generators;
+package org.apache.ambari.view.hive2.internal.dto;
 
-import org.apache.ambari.view.hive2.exceptions.ServiceException;
+public enum Order {
+  DESC (0),
+  ASC (1);
 
-public interface QueryGenerator {
-  String getQuery() throws ServiceException;
+  private static Order[] allValues = values();
+  public static Order fromOrdinal(int n) {return allValues[n];}
+
+  private final int ordinal;
+
+  Order(int ordinal){
+    this.ordinal = ordinal;
+  }
+
+  public int getOrdinal(){
+    return ordinal;
+  }
 }
