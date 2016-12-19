@@ -1,0 +1,37 @@
+{{multiple-database-search-bar databases=model selected=selected xyz="xyz" }}
+
+
+<div class="clearfix">
+
+  <div class="col-md-9">
+    <div class="row query-editor">
+      {{ivy-codemirror
+      value="some sql query"
+      options=(hash lineNumbers=true
+      readOnly=false
+      mode="sql"
+      theme="solarized")}}
+    </div>
+  </div>
+
+  <div class="col-md-3">
+    <div class="row">
+      {{#list-filter header="tables" items=selectedTablesModel
+      placeholder="Search"
+      as |filteredItems|}}
+        {{#list-group class="table-list" items=filteredItems as |item|}}
+          {{list-item item=item itemClicked="tableSelected"}}
+        {{/list-group}}
+      {{/list-filter}}
+    </div>
+  </div>
+
+</div>
+
+
+
+{{#if databaseNotEmpty}}
+  {{database-not-empty name=databaseName close="notEmptyDialogClosed"}}
+{{/if}}
+
+{{outlet}}

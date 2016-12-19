@@ -1,0 +1,19 @@
+<div class="col-md-2">
+  <p class="text-left text-uppercase"><strong>{{heading}}</strong></p>
+  <p class="text-left text-muted"><small>{{subHeading}}</small></p>
+</div>
+<div class="col-md-9">
+  <div class="input-group-lg">
+
+    {{#power-select-multiple
+    options=allDbs
+    selected=selectedDbs
+    onchange=(pipe-action (action (mut selectedDbs)) (action "updateTables"))
+    onkeydown=(action "createOnEnter")
+    as |number|}}
+      {{number}}
+    {{/power-select-multiple}}
+  </div>
+</div>
+
+{{yield}}

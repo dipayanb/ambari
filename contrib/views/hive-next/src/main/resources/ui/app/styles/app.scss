@@ -25,7 +25,7 @@
 
 $database-search-background: lighten($body-bg, 10%);
 $database-search-text-color: $gray;
-.database-search {
+.database-search, .multiple-database-search {
   color:  $database-search-text-color;
   padding: 10px;
   border: 1px solid darken($database-search-background, 25%);
@@ -217,6 +217,10 @@ pre {
     width: 50%;
     //padding-right: 5px;
   }
+}
+
+.query-editor {
+  border-right: 1px solid darken($database-search-background, 25%);
 }
 
 .hdfs-viewer {

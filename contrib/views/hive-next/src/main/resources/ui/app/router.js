@@ -12,6 +12,7 @@ Router.map(function() {
   this.route('settings');
   this.route('notifications');
   this.route('savedqueries');
+
   this.route('databases', function() {
     this.route('database', {path: '/:databaseId'}, function() {
       this.route('tables', {path: '/tables'}, function() {
@@ -28,6 +29,11 @@ Router.map(function() {
       });
     });
   });
+
+  this.route('query', function() {
+
+  });
+
 });
 
 export default Router;
