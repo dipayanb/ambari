@@ -43,7 +43,12 @@ $database-search-text-color: $gray;
 
   .ember-power-select-trigger{
     border: 1px solid darken($database-search-background, 25%);
-    line-height: 3em;
+    line-height: 3.2em;
+  }
+
+  .ember-power-select-trigger-multiple-input {
+    font-size: 18px;
+    padding: 0 16px;
   }
 }
 
@@ -53,7 +58,6 @@ $database-search-text-color: $gray;
 }
 
 .ember-power-select-multiple-option {
-
   border-radius: 3px;
   border: 1px solid #ddd;
   color: #555;
