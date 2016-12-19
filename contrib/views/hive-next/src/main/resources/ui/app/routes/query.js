@@ -31,6 +31,13 @@ export default Ember.Route.extend({
     let selectedTablesModel = this.store.query('table', {databaseId: selecteDBName});
     controller.set('selectedTablesModel',selectedTablesModel);
 
+    controller.set('currentQuery', 'select 1;');
+
+
+    controller.set('queryResults', 'Here you go.');
+
+
+
   },
 
   selectDatabase(model) {
@@ -46,7 +53,7 @@ export default Ember.Route.extend({
   actions: {
 
     xyz(selectedDBs){
-      console.log('xyz', selectedDBs);
+      //console.log('xyz', selectedDBs);
       let selectedTablesModel = this.store.query('table', {databaseId: selectedDBs[selectedDBs.length -1]}); //How to club two models.
       this.get('controller').set('selectedTablesModel',selectedTablesModel);
     },
@@ -58,6 +65,10 @@ export default Ember.Route.extend({
     notEmptyDialogClosed() {
       this.get('controller').set('databaseNotEmpty', false);
       this.get('controller').set('databaseName', undefined);
+    },
+
+    executeQuery(){
+      console.log(this.get('controller').get('currentQuery'))
     }
   }
 });

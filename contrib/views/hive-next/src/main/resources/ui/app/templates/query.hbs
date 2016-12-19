@@ -6,11 +6,17 @@
   <div class="col-md-9">
     <div class="row query-editor">
       {{ivy-codemirror
-      value="some sql query"
+      value=currentQuery
+      valueUpdated=(action "updateMyCode")
       options=(hash lineNumbers=true
       readOnly=false
       mode="sql"
       theme="solarized")}}
+
+      <div class="create-table-controls">
+        <button class="btn btn-success" {{action "executeQuery"}}>{{fa-icon "check"}} Execute</button>
+      </div>
+
     </div>
   </div>
 
@@ -27,6 +33,13 @@
   </div>
 
 </div>
+
+<div class="col-md-9 clearfix query-editor-results">
+
+  {{ queryResults }}
+
+</div>
+
 
 
 

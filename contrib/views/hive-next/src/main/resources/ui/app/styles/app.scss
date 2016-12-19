@@ -31,6 +31,7 @@ $database-search-text-color: $gray;
   border: 1px solid darken($database-search-background, 25%);
   background-color: $database-search-background;
   border-collapse: collapse;
+  margin-bottom: 10px;
 
   p {
     margin-bottom: 5px;
@@ -39,7 +40,39 @@ $database-search-text-color: $gray;
   .btn {
     color: $database-search-text-color;
   }
+
+  .ember-power-select-trigger{
+    border: 1px solid darken($database-search-background, 25%);
+    line-height: 3em;
+  }
 }
+
+.ember-power-select-option[aria-current="true"]{
+  color: #555;
+  background-color: #f5f5f5;
+}
+
+.ember-power-select-multiple-option {
+
+  border-radius: 3px;
+  border: 1px solid #ddd;
+  color: #555;
+  background-color: #e4e4e4;
+  padding: 0 4px;
+  display: inline-block;
+  line-height: 2;
+  float: left;
+  margin: 5px 0 2px 3px;
+}
+
+.ember-power-select-dropdown.ember-basic-dropdown-content--below, .ember-power-select-dropdown.ember-basic-dropdown-content--in-place {
+  border-top: none;
+  border-bottom: 1px solid #64A5ED;
+  border-top-left-radius: 0;
+  border-top-right-radius: 0;
+  border: 1px solid darken($database-search-background, 25%);
+}
+
 
 .database-search-drawer {
   position: absolute;

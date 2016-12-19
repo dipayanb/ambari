@@ -6,6 +6,7 @@
   <div class="input-group-lg">
 
     {{#power-select-multiple
+    placeholder="Search databases"
     options=allDbs
     selected=selectedDbs
     onchange=(pipe-action (action (mut selectedDbs)) (action "updateTables"))
