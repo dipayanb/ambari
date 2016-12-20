@@ -26,17 +26,22 @@ export default Ember.Route.extend({
     selectedDB.pushObject(selectedModel);
     controller.set('selectedModel',selectedDB);
 
-
     let selecteDBName = selectedModel.get('name');
-    let selectedTablesModel = this.store.query('table', {databaseId: selecteDBName});
-    controller.set('selectedTablesModel',selectedTablesModel);
 
+    let self = this;
+    let selectedTablesModels =[];
+
+    selectedTablesModels.pushObject(
+      {
+        'dbname': selecteDBName ,
+        'tables': this.store.query('table', {databaseId: selecteDBName})
+      }
+    )
+
+
+    controller.set('selectedTablesModels',selectedTablesModels );
     controller.set('currentQuery', 'select 1;');
-
-
-    controller.set('queryResults', 'Here you go.');
-
-
+    controller.set('queryResults', 'Query Result Placeholder');
 
   },
 
@@ -54,12 +59,31 @@ export default Ember.Route.extend({
 
     xyz(selectedDBs){
       //console.log('xyz', selectedDBs);
-      let selectedTablesModel = this.store.query('table', {databaseId: selectedDBs[selectedDBs.length -1]}); //How to club two models.
-      this.get('controller').set('selectedTablesModel',selectedTablesModel);
+
+      let self = this;
+      let selectedTablesModels =[];
+
+      selectedDBs.forEach(function(db){
+        selectedTablesModels.pushObject(
+          {
+           'dbname': db ,
+           'tables':self.store.query('table', {databaseId: db})
+          }
+        )
+      });
+
+      this.get('controller').set('selectedTablesModels', selectedTablesModels );
+
     },
 
     tableSelected(){
       console.log('I am in tableSelected');
+    },
+
+    showTables(db){
+      //should we do this by writing a seperate component.
+      $('.collapse').hide();
+      $('#' + db).toggle();
     },
 
     notEmptyDialogClosed() {
@@ -69,6 +93,7 @@ export default Ember.Route.extend({
 
     executeQuery(){
       console.log(this.get('controller').get('currentQuery'))
+      this.get('controller').set('queryResults', 'Query result for --> ' + this.get('controller').get('currentQuery'));
     }
   }
 });

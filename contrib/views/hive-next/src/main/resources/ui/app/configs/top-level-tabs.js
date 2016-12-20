@@ -2,6 +2,12 @@ import Ember from 'ember';
 
 let topLevelTabs = [
   Ember.Object.create({
+    name: 'query',
+    label: 'QUERY',
+    link: 'query',
+    faIcon: 'paper-plane'
+  }),
+  Ember.Object.create({
     name: 'jobs',
     label: 'JOBS',
     link: 'jobs',

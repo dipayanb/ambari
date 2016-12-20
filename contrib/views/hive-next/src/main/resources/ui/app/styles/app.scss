@@ -258,6 +258,24 @@ pre {
 
 .query-editor {
   border-right: 1px solid darken($database-search-background, 25%);
+  margin-right: 0;
+}
+
+.database-panel{
+
+  .panel-heading {
+    border: 1px solid #ddd;
+  }
+  .panel-default{
+    border: 0;
+    .panel-body{
+      padding: 0;
+    }
+  }
+
+  .list-header{
+    display: none;
+  }
 }
 
 .hdfs-viewer {
