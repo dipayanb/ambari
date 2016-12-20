@@ -43,15 +43,29 @@ public class AlterTableQueryGenerator implements QueryGenerator{
   }
 
   public String getQuery(){
-    StringBuffer query = new StringBuffer(" ALTER TABLE ");
-    query.append("`").append(this.getOldMeta().getDatabase()).append(".").append(this.getOldMeta().getTable().trim()).append("`");
+    String queryPrefix = new StringBuffer(" ALTER TABLE ")
+      .append("`").append(this.getOldMeta().getDatabase()).append(".").append(this.getOldMeta().getTable().trim()).append("` ").toString();
     Optional<String> tableRenameQuery = this.getTableRenameQuery();
-    if(tableRenameQuery.isPresent()){
-      query.append(tableRenameQuery.get());
+    Optional<String> tablePropertiesQuery = this.getTablePropertiesQuery();
+    Optional<String> serdeProperties = this.getSerdePropertiesQuery();
+  }
+
+  /**
+   * assuming that getStorageInfo().getParameters() gives only serde properties
+   * @return
+   */
+  private Optional<String> getSerdePropertiesQuery() {
+    Optional<Map<String, Map<Object, Object>>> diff = QueryGenerationUtils.findDiff(this.getOldMeta().getStorageInfo().getParameters(), this.getNewMeta().getStorageInfo().getParameters());
+    if(diff.isPresent()){
+      Map<String, Map<Object, Object>> diffMap = diff.get();
+      Map<Object, Object> added = diffMap.get(QueryGenerationUtils.ADDED);
+      Map<Object, Object> modified = diffMap.get(QueryGenerationUtils.MODIFIED);
+      Map<Object, Object> deleted = diffMap.get(QueryGenerationUtils.DELETED);
+
+      
     }
 
-    Optional<String> tablePropertiesQuery = this.getTablePropertiesQuery();
-
+    return Optional.absent();
   }
 
   private Optional<String> getTablePropertiesQuery() {
