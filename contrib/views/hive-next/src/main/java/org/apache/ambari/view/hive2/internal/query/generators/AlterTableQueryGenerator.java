@@ -20,9 +20,11 @@ package org.apache.ambari.view.hive2.internal.query.generators;
 
 import com.google.common.base.Optional;
 import com.google.common.base.Strings;
+import org.apache.ambari.view.hive2.internal.dto.ColumnOrder;
 import org.apache.ambari.view.hive2.internal.dto.TableMeta;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public class AlterTableQueryGenerator implements QueryGenerator{
@@ -42,19 +44,50 @@ public class AlterTableQueryGenerator implements QueryGenerator{
     return newMeta;
   }
 
-  public String getQuery(){
-    String queryPrefix = new StringBuffer(" ALTER TABLE ")
+  public String getQueryPerfix(){
+    return new StringBuffer(" ALTER TABLE ")
       .append("`").append(this.getOldMeta().getDatabase()).append(".").append(this.getOldMeta().getTable().trim()).append("` ").toString();
+  }
+  public String getQuery(){
     Optional<String> tableRenameQuery = this.getTableRenameQuery();
     Optional<String> tablePropertiesQuery = this.getTablePropertiesQuery();
-    Optional<String> serdeProperties = this.getSerdePropertiesQuery();
+    Optional<String> serdeProperties = this.getSerdeQuery();
+    Optional<String> storagePropertyQuery = this.getStoragePropertyQuery();
+
+  }
+
+  /**
+   * ALTER TABLE table_name CLUSTERED BY (col_name, col_name, ...) [SORTED BY (col_name, ...)]
+   INTO num_buckets BUCKETS;
+   * @return
+   */
+  private Optional<String> getStoragePropertyQuery() {
+    boolean foundDiff = false;
+    List<String> oldBucketCols = this.getOldMeta().getStorageInfo().getBucketCols();
+    List<ColumnOrder> oldSortCols = this.getOldMeta().getStorageInfo().getSortCols();
+    String oldNumBuckets = this.getOldMeta().getStorageInfo().getNumBuckets();
+
+    List<String> newBucketCols = this.getNewMeta().getStorageInfo().getBucketCols();
+    List<ColumnOrder> newSortCols = this.getNewMeta().getStorageInfo().getSortCols();
+    String newNumBuckets = this.getNewMeta().getStorageInfo().getNumBuckets();
+
+    if(newBucketCols == null)
+
   }
 
   /**
    * assuming that getStorageInfo().getParameters() gives only serde properties
    * @return
    */
-  private Optional<String> getSerdePropertiesQuery() {
+  private Optional<String> getSerdeQuery() {
+    String query = "";
+    String oldSerde = this.getOldMeta().getStorageInfo().getSerdeLibrary();
+    String newSerde = this.getNewMeta().getStorageInfo().getSerdeLibrary();
+    boolean serdeChanged = false;
+    if(null != newSerde){
+      serdeChanged = !newSerde.equals(oldSerde);
+      query += " SET SERDE " + newSerde + " ";
+    }
     Optional<Map<String, Map<Object, Object>>> diff = QueryGenerationUtils.findDiff(this.getOldMeta().getStorageInfo().getParameters(), this.getNewMeta().getStorageInfo().getParameters());
     if(diff.isPresent()){
       Map<String, Map<Object, Object>> diffMap = diff.get();
@@ -62,7 +95,20 @@ public class AlterTableQueryGenerator implements QueryGenerator{
       Map<Object, Object> modified = diffMap.get(QueryGenerationUtils.MODIFIED);
       Map<Object, Object> deleted = diffMap.get(QueryGenerationUtils.DELETED);
 
-      
+      // TODO : how to handle deleted? actually I cannot find anything in hive alter table that will remove existing property
+      Map addedOrModified = new HashMap<>(added);
+      addedOrModified.putAll(modified);
+
+      if( serdeChanged ){
+        query += " WITH SERDEPROPERTIES ";
+      }else{
+        query += " SET SERDEPROPERTIES ";
+      }
+      query += " ( " + QueryGenerationUtils.getPropertiesAsKeyValues(addedOrModified) + " ) ";
+    }
+
+    if(!query.trim().isEmpty()){
+      Optional.of(getQueryPerfix() + query);
     }
 
     return Optional.absent();
@@ -77,7 +123,7 @@ public class AlterTableQueryGenerator implements QueryGenerator{
       }
 
       if( !QueryGenerationUtils.isEqual(oldProps, newProps) ){
-        return Optional.of(" SET TBLPROPERTIES " + QueryGenerationUtils.getPropertiesAsKeyValues(newProps));
+        return Optional.of(getQueryPerfix() + " SET TBLPROPERTIES " + QueryGenerationUtils.getPropertiesAsKeyValues(newProps));
       }
     }
 
@@ -87,7 +133,7 @@ public class AlterTableQueryGenerator implements QueryGenerator{
   private Optional<String> getTableRenameQuery(){
     if(!Strings.isNullOrEmpty(this.getOldMeta().getTable()) && !Strings.isNullOrEmpty(this.getNewMeta().getTable())){
       if( !this.getOldMeta().getTable().trim().equals(this.getNewMeta().getTable().trim())){
-        return Optional.of(" RENAME TO " + this.getNewMeta().getTable().trim());
+        return Optional.of( getQueryPerfix() + " RENAME TO " + this.getNewMeta().getTable().trim());
       }
     }
 
