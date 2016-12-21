@@ -20,7 +20,7 @@
     </div>
 
     <div class="col-md-12 clearfix query-editor-results">
-      {{ queryResults }}
+      {{query-result-table}}
     </div>
 
 
@@ -39,6 +39,9 @@
                 <a role="button" data-toggle="collapse" data-parent="#accordion" href="javascript:void(0)" {{action 'showTables' tableModel.dbname }} aria-expanded="true" aria-controls={{tableModel.dbname}} >
                   {{ tableModel.dbname }}
                 </a>
+
+                <small class="pull-right">Tables({{tableModel.tables.length}})</small>
+
               </h4>
             </div>
 
@@ -53,7 +56,7 @@
                       {{/list-group}}
                     {{/list-filter}}
                   {{else}}
-                    <p>No Table found.</p>
+                    <div class="empty">No Table found.</div>
                   {{/if}}
               </div>
             </div>

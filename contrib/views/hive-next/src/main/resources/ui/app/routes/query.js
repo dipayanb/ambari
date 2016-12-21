@@ -38,7 +38,6 @@ export default Ember.Route.extend({
       }
     )
 
-
     controller.set('selectedTablesModels',selectedTablesModels );
     controller.set('currentQuery', 'select 1;');
     controller.set('queryResults', 'Query Result Placeholder');
