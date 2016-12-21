@@ -19,13 +19,13 @@
 package org.apache.ambari.view.hive2.internal.dto;
 
 import org.apache.commons.lang3.builder.EqualsBuilder;
-import org.apache.commons.lang3.builder.HashCodeBuilder;
 
 /**
  *
  */
 public class ColumnInfo {
   private String name;
+  // TODO : to be broken into datatype + precision + scale for better comparison
   private String type;
   private String comment;
 
