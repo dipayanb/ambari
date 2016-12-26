@@ -5,8 +5,8 @@ import Helper from '../configs/helpers';
 export default Ember.Object.extend({
   name: '',
   type: datatypes[0],
-  precision: 0,
-  scale: 0,
+  precision: null,
+  scale: null,
   isPartitioned: false,
   isClustered: false,
   comment: '',

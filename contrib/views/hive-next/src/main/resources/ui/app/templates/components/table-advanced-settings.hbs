@@ -111,7 +111,7 @@
                 selected=selectedFieldTerminator
                 options=terminationChars
                 searchField="name"
-                searchPlaceholder="Enter terminator chanracter"
+                searchPlaceholder="Enter terminator character"
                 onchange=(action "fieldTerminatorSelected") as |parameter|}}
                 {{parameter.name}}{{#if parameter.description}} - {{parameter.description}}{{/if}}
               {{/power-select}}
@@ -125,54 +125,13 @@
       <div class="row">
         <div class="col-md-6 form-horizontal">
           <div class="form-group">
-            <label class="col-md-4 control-label">Collection Item Terminated By</label>
-            <div class="col-md-7">
-              {{#power-select
-                selected=selectedCollectionItemTerminator
-                options=terminationChars
-                searchField="name"
-                searchPlaceholder="Enter terminator chanracter"
-                onchange=(action "collectionItemTerminatorSelected") as |parameter|}}
-                {{parameter.name}}{{#if parameter.description}} - {{parameter.description}}{{/if}}
-              {{/power-select}}
-            </div>
-            <div class="col-md-1">
-              <a class="text-danger"  {{action "clearCollectionItemTerminator"}}>{{fa-icon "times" size="lg"}}</a>
-            </div>
-          </div>
-
-        </div>
-      </div>
-      <div class="row">
-        <div class="col-md-6 form-horizontal">
-          <div class="form-group">
-            <label class="col-md-4 control-label">Map Key Terminated By</label>
-            <div class="col-md-7">
-              {{#power-select
-                selected=selectedMapKeyTerminator
-                options=terminationChars
-                searchField="name"
-                searchPlaceholder="Enter terminator chanracter"
-                onchange=(action "mapKeyTerminatorSelected") as |parameter|}}
-                {{parameter.name}}{{#if parameter.description}} - {{parameter.description}}{{/if}}
-              {{/power-select}}
-            </div>
-            <div class="col-md-1">
-              <a class="text-danger"  {{action "clearMapKeyTerminator"}}>{{fa-icon "times" size="lg"}}</a>
-            </div>
-          </div>
-        </div>
-      </div>
-      <div class="row">
-        <div class="col-md-6 form-horizontal">
-          <div class="form-group">
             <label class="col-md-4 control-label">Lines Terminated By</label>
             <div class="col-md-7">
               {{#power-select
                 selected=selectedLinesTerminator
                 options=terminationChars
                 searchField="name"
-                searchPlaceholder="Enter terminator chanracter"
+                searchPlaceholder="Enter terminator character"
                 onchange=(action "linesTerminatorSelected") as |parameter|}}
                 {{parameter.name}}{{#if parameter.description}} - {{parameter.description}}{{/if}}
               {{/power-select}}
@@ -192,13 +151,33 @@
                 selected=selectedNullDefinition
                 options=terminationChars
                 searchField="name"
-                searchPlaceholder="Enter terminator chanracter"
+                searchPlaceholder="Enter terminator character"
                 onchange=(action "nullDefinedAsSelected") as |parameter|}}
                 {{parameter.name}}{{#if parameter.description}} - {{parameter.description}}{{/if}}
               {{/power-select}}
             </div>
             <div class="col-md-1">
               <a class="text-danger" {{action "clearNullDefinition"}}>{{fa-icon "times" size="lg"}}</a>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="row">
+        <div class="col-md-6 form-horizontal">
+          <div class="form-group">
+            <label class="col-md-4 control-label">Escape Defined As</label>
+            <div class="col-md-7">
+              {{#power-select
+                selected=selectedEscapeDefinition
+                options=terminationChars
+                searchField="name"
+                searchPlaceholder="Enter terminator chanracter"
+                onchange=(action "escapeDefinedAsSelected") as |parameter|}}
+                {{parameter.name}}{{#if parameter.description}} - {{parameter.description}}{{/if}}
+              {{/power-select}}
+            </div>
+            <div class="col-md-1">
+              <a class="text-danger" {{action "clearEscapeDefinition"}}>{{fa-icon "times" size="lg"}}</a>
             </div>
           </div>
         </div>

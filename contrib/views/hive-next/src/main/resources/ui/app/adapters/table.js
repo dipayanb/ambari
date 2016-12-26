@@ -18,5 +18,13 @@ export default DDLAdapter.extend({
       }
     }
     return this._super(...arguments);
+  },
+
+
+  createTable(tableMetaInfo) {
+    let postURL = this.buildURL('table', null, null, 'query', {databaseId: tableMetaInfo.database});
+    console.log(postURL);
+    console.log(tableMetaInfo);
+    return this.ajax(postURL, 'POST', { data: {tableInfo: tableMetaInfo} });
   }
 });
