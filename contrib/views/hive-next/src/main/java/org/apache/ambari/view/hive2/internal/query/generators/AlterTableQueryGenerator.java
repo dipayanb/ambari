@@ -30,7 +30,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nullable;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -62,15 +61,15 @@ public class AlterTableQueryGenerator implements QueryGenerator {
       .append("`").append(this.getOldMeta().getDatabase()).append(".").append(this.getOldMeta().getTable().trim()).append("` ").toString();
   }
 
-  public String getQuery() {
+  public Optional<String> getQuery() {
     List<Optional<String>> queries = new LinkedList<>();
 
-    Optional<String> tableRenameQuery = this.getTableRenameQuery(this.getOldMeta().getDatabase(),
+    Optional<String> tableRenameQuery = this.generateTableRenameQuery(this.getOldMeta().getDatabase(),
       this.getOldMeta().getTable(), this.getNewMeta().getDatabase(), this.getNewMeta().getTable());
     queries.add(tableRenameQuery);
 
     if (null != this.getNewMeta().getDetailedInfo() && null != this.getNewMeta().getDetailedInfo()) {
-      Optional<String> tablePropertiesQuery = this.getTablePropertiesQuery(this.getOldMeta().getDetailedInfo().getParameters(),
+      Optional<String> tablePropertiesQuery = this.generateTablePropertiesQuery(this.getOldMeta().getDetailedInfo().getParameters(),
         this.getNewMeta().getDetailedInfo().getParameters());
       queries.add(tablePropertiesQuery);
     }
@@ -81,7 +80,7 @@ public class AlterTableQueryGenerator implements QueryGenerator {
       Map<String, String> oldParameters = this.getOldMeta().getStorageInfo().getParameters();
       Map<String, String> newParameters = this.getNewMeta().getStorageInfo().getParameters();
 
-      Optional<String> serdeProperties = this.getSerdeQuery(oldSerde, oldParameters, newSerde, newParameters);
+      Optional<String> serdeProperties = this.generateSerdeQuery(oldSerde, oldParameters, newSerde, newParameters);
       queries.add(serdeProperties);
     }
 
@@ -94,274 +93,138 @@ public class AlterTableQueryGenerator implements QueryGenerator {
       List<ColumnOrder> newSortCols = this.getNewMeta().getStorageInfo().getSortCols();
       String newNumBuckets = this.getNewMeta().getStorageInfo().getNumBuckets();
 
-      Optional<String> storagePropertyQuery = this.getStoragePropertyQuery(oldBucketCols, oldSortCols, oldNumBuckets, newBucketCols, newSortCols, newNumBuckets);
+      Optional<String> storagePropertyQuery = this.generateStoragePropertyQuery(oldBucketCols, oldSortCols, oldNumBuckets, newBucketCols, newSortCols, newNumBuckets);
       queries.add(storagePropertyQuery);
     }
 
-    Optional<String> columnQuery = this.getColumnQuery(this.getOldMeta().getColumns(), this.getNewMeta().getColumns());
-  }
-
-  enum Action {
-    INSERT,
-    REPLACE,
-    REMOVE,
-    NOTHING
-  }
-
-  class ObjectAction<T> {
-    private T fromObject;
-    private T toObject;
-    private Action action;
-
-    public ObjectAction(T fromObject, T toObject, Action action) {
-      this.fromObject = fromObject;
-      this.toObject = toObject;
-      this.action = action;
+    Optional<List<Optional<String>>> columnQuery = this.generateColumnQuery();
+    if (columnQuery.isPresent()) {
+      queries.addAll(columnQuery.get());
     }
+    final boolean[] foundChange = {false};
 
-    public T getFromObject() {
-      return fromObject;
-    }
-
-    public void setToObject(T toObject) {
-      this.toObject = toObject;
-    }
-
-    public T getToObject() {
-      return toObject;
-    }
-
-    public void setFromObject(T fromObject) {
-      this.fromObject = fromObject;
-    }
-
-    public Action getAction() {
-      return action;
-    }
-
-    public void setAction(Action action) {
-      this.action = action;
-    }
-  }
-
-  class EditResult<T> {
-    private List<ObjectAction<T>> objectActionList;
-    private int editCount;
-    private int m; // index of first array
-    private int n; // index of second array
-
-    public EditResult(List<ObjectAction<T>> objectActionList, int editCount, int m, int n) {
-      this.objectActionList = objectActionList;
-      this.editCount = editCount;
-      this.m = m;
-      this.n = n;
-    }
-
-    public List<ObjectAction<T>> getObjectActionList() {
-      return objectActionList;
-    }
-
-    public void setObjectAction(List<ObjectAction<T>> objectActionList) {
-      this.objectActionList = objectActionList;
-    }
-
-    public int getEditCount() {
-      return editCount;
-    }
-
-    public void setEditCount(int editCount) {
-      this.editCount = editCount;
-    }
-
-    public int getM() {
-      return m;
-    }
-
-    public void setM(int m) {
-      this.m = m;
-    }
-
-    public int getN() {
-      return n;
-    }
-
-    public void setN(int n) {
-      this.n = n;
-    }
-
-    @Override
-    public boolean equals(Object o) {
-      if (this == o) return true;
-      if (!(o instanceof EditResult)) return false;
-
-      EditResult<?> that = (EditResult<?>) o;
-
-      if (getM() != that.getM()) return false;
-      return getN() == that.getN();
-
-    }
-
-    @Override
-    public int hashCode() {
-      int result = getM();
-      result = 31 * result + getN();
-      return result;
-    }
-  }
-
-  class ObjectPair<First, Second> {
-    private First first;
-    private Second second;
-
-    public ObjectPair(First first, Second second) {
-      this.first = first;
-      this.second = second;
-    }
-
-    public First getFirst() {
-      return first;
-    }
-
-    public void setFirst(First first) {
-      this.first = first;
-    }
-
-    public Second getSecond() {
-      return second;
-    }
-
-    public void setSecond(Second second) {
-      this.second = second;
-    }
-
-    @Override
-    public boolean equals(Object o) {
-      if (this == o) return true;
-      if (!(o instanceof ObjectPair)) return false;
-
-      ObjectPair<?, ?> that = (ObjectPair<?, ?>) o;
-
-      if (getFirst() != null ? !getFirst().equals(that.getFirst()) : that.getFirst() != null) return false;
-      return getSecond() != null ? getSecond().equals(that.getSecond()) : that.getSecond() == null;
-
-    }
-
-    @Override
-    public int hashCode() {
-      int result = getFirst() != null ? getFirst().hashCode() : 0;
-      result = 31 * result + (getSecond() != null ? getSecond().hashCode() : 0);
-      return result;
-    }
-  }
-
-  private <T> List<ObjectAction<T>> findEditDistance(ArrayList<T> from, ArrayList<T> to, int m, int n) {
-    EditResult<T> result = findEditDistance(from, to, m, n, new HashMap<ObjectPair<Integer, Integer>, EditResult<T>>());
-    return result.getObjectActionList();
-  }
-
-  private <T> EditResult<T> findEditDistance(ArrayList<T> from, ArrayList<T> to, int m, int n, Map<ObjectPair<Integer, Integer>, EditResult<T>> cachedResults) {
-    EditResult<T> cachedResult = cachedResults.get(new ObjectPair<Integer, Integer>(m, n));
-    if (null != cachedResult) {
-      return cachedResult;
-    }
-
-    EditResult<T> result = new EditResult<>(new LinkedList<ObjectAction<T>>(), 0, m, n);
-    if (n == 0) {
-      for (int i = m - 1; i >= 0; i--) {
-        result.getObjectActionList().add(new ObjectAction<T>(from.get(i), null, Action.REMOVE));
-        result.setEditCount(result.getEditCount() + 1);
+    List<String> queryList = FluentIterable.from(queries).transform(new Function<Optional<String>, String>() {
+      @Override
+      public String apply(Optional<String> input) {
+        if (input.isPresent()) {
+          foundChange[0] = true;
+          return input.get();
+        } else {
+          return "";
+        }
       }
-      cachedResults.put(new ObjectPair<Integer, Integer>(m, n), result);
-      return result;
-    }
+    }).toList();
 
-    if (m == 0) {
-      for (int i = n - 1; i >= 0; i--) {
-        result.getObjectActionList().add(new ObjectAction<T>(null, to.get(i), Action.INSERT));
-        result.setEditCount(result.getEditCount() + 1);
-      }
-      cachedResults.put(new ObjectPair<Integer, Integer>(m, n), result);
-      return result;
-    }
-
-    if (from.get(m - 1).equals(to.get(n - 1))) {
-      EditResult<T> partialResult = findEditDistance(from, to, m - 1, n - 1, cachedResults);
-      result.getObjectActionList().addAll(partialResult.getObjectActionList());
-      result.setEditCount(partialResult.getEditCount());
-
-      result.getObjectActionList().add(new ObjectAction<T>(from.get(m - 1), null, Action.NOTHING));
-      result.setEditCount(result.getEditCount() + 1);
-
-      cachedResults.put(new ObjectPair<Integer, Integer>(m, n), result);
-      return result;
-    }
-
-    EditResult<T> addedResult = findEditDistance(from, to, m, n - 1, cachedResults);
-    EditResult<T> replaceResult = findEditDistance(from, to, m - 1, n - 1, cachedResults);
-    EditResult<T> deleteResult = findEditDistance(from, to, m - 1, n, cachedResults);
-
-    EditResult<T> maxResult = null;
-    if (addedResult.getEditCount() > replaceResult.getEditCount()) {
-      if (addedResult.getEditCount() > deleteResult.getEditCount()) {
-        maxResult = addedResult;
-      } else {
-        maxResult = deleteResult;
-      }
-    } else if (replaceResult.getEditCount() > deleteResult.getEditCount()) {
-      maxResult = replaceResult;
+    if (foundChange[0]) {
+      return Optional.of(Joiner.on(";\n").join(queryList));
     } else {
-      maxResult = deleteResult;
+      return Optional.absent();
     }
 
-    result.getObjectActionList().addAll(maxResult.getObjectActionList());
-    result.setEditCount(maxResult.getEditCount());
+  }
 
-    result.setEditCount(result.getEditCount() + 1);
-    if (maxResult == addedResult) {
-      result.getObjectActionList().add(new ObjectAction<T>(null, to.get(n - 1), Action.INSERT));
+  Optional<List<Optional<String>>> generateColumnQuery() {
+    List<ColumnInfo> oldColumns = this.getOldMeta().getColumns();
+    List<ColumnInfo> newColumns = this.getNewMeta().getColumns();
+    boolean cascade = null != this.getNewMeta().getPartitionInfo() && !isNullOrEmpty(this.getNewMeta().getPartitionInfo().getColumns());
+    Optional<List<String>> queries = createColumnQueries(oldColumns, newColumns, cascade);
+    if (queries.isPresent()) {
+      List<Optional<String>> queryList = FluentIterable.from(queries.get()).transform(new Function<String, Optional<String>>() {
+        @Override
+        public Optional<String> apply(String input) {
+          return Optional.of(getQueryPerfix() + input);
+        }
+      }).toList();
+      return Optional.of(queryList);
+    } else {
+      return Optional.absent();
     }
-    if (maxResult == deleteResult) {
-      result.getObjectActionList().add(new ObjectAction<T>(from.get(m - 1), null, Action.REMOVE));
-    }
-    if (maxResult == replaceResult) {
-      result.getObjectActionList().add(new ObjectAction<T>(from.get(m - 1), to.get(n - 1), Action.REPLACE));
-    }
-
-    cachedResults.put(new ObjectPair<Integer, Integer>(m, n), result);
-    return result;
   }
 
   /**
    * TODO : this uses CASCADE. confirm that it is expected.
    * ALTER TABLE table_name [PARTITION partition_spec] CHANGE [COLUMN] col_old_name col_new_name column_type
-   [COMMENT col_comment] [FIRST|AFTER column_name] [CASCADE|RESTRICT];
+   * [COMMENT col_comment] [FIRST|AFTER column_name] [CASCADE|RESTRICT];
+   * <p>
+   * ALTER TABLE table_name
+   * [PARTITION partition_spec]                 -- (Note: Hive 0.14.0 and later)
+   * ADD|REPLACE COLUMNS (col_name data_type [COMMENT col_comment], ...)
+   * [CASCADE|RESTRICT]                         -- (Note: Hive 0.15.0 and later)
+   *
    * @param oldColumns
    * @param newColumns
    * @return
    */
-  private Optional<String> getColumnQuery(List<ColumnInfo> oldColumns, List<ColumnInfo> newColumns) {
+  static Optional<List<String>> createColumnQueries(List<ColumnInfo> oldColumns, List<ColumnInfo> newColumns, boolean cascade) {
     if (isNullOrEmpty(oldColumns) || isNullOrEmpty(newColumns)) {
       LOG.error("oldColumns = {} or newColumns = {} was null.", oldColumns, newColumns);
       throw new IllegalArgumentException("Old or new columns cannot be empty.");
     }
 
-    List<ObjectAction<ColumnInfo>> columnActions = findEditDistance(new ArrayList<>(oldColumns), new ArrayList<>(newColumns), oldColumns.size(), newColumns.size());
-
-    if( isNullOrEmpty(columnActions) ){
-      return Optional.absent();
+    //TODO : removing columns not allowed right now. handle this later using REPLACE for native serde or error.
+    if (oldColumns.size() > newColumns.size()) {
+      LOG.error("removing columns from hive table is not supported yet.");
+      throw new IllegalArgumentException("removing columns is not allowed.");
     }
 
-    StringBuilder queryBuilder = new StringBuilder();
-    ColumnInfo lastExisting = null;
-    for(int i = 0 ; i < columnActions.size() ; i++ ){
-      ObjectAction<ColumnInfo> curr = columnActions.get(i);
-      StringBuilder partialQuery = new StringBuilder();
-      switch(curr.getAction()){
-        case INSERT:
-          partialQuery.append(getQueryPerfix());
+    List<String> queries = new LinkedList<>();
+    int i = 0;
+    boolean foundChange = false;
+    for (; i < oldColumns.size(); i++) {
+      ColumnInfo oldColumn = oldColumns.get(i);
+      ColumnInfo newColumn = newColumns.get(i);
 
+      if (!oldColumn.equals(newColumn)) {
+        foundChange = true;
+        StringBuilder queryBuilder = new StringBuilder();
+        queryBuilder.append(" CHANGE COLUMN `").append(oldColumn.getName()).append("`")
+          .append(" `").append(newColumn.getName()).append("` ").append(newColumn.getType())
+          .append(Strings.isNullOrEmpty(newColumn.getComment()) ? "" : " COMMENT \"" + newColumn.getComment() + "\"");
+
+          if(cascade){
+            queryBuilder.append(" CASCADE");
+          }
+
+        queries.add(queryBuilder.toString());
       }
     }
+
+    if (i < newColumns.size()) {
+      StringBuilder queryBuilder = new StringBuilder();
+      queryBuilder.append(" ADD COLUMNS ( ");
+      boolean first = true;
+      for (; i < newColumns.size(); i++) {
+        foundChange = true;
+        ColumnInfo columnInfo = newColumns.get(i);
+        if (!first) {
+          queryBuilder.append(", ");
+        } else {
+          first = false;
+        }
+
+        queryBuilder.append("`").append(columnInfo.getName()).append("` ").append(columnInfo.getType())
+          .append(Strings.isNullOrEmpty(columnInfo.getComment()) ? "" : " COMMENT \"" + columnInfo.getComment() + "\"");
+      }
+      queryBuilder.append(" )");
+
+      if(cascade){
+        queryBuilder.append(" CASCADE");
+      }
+
+      queries.add(queryBuilder.toString());
+    }
+
+    if (foundChange) {
+      return Optional.of(queries);
+    } else {
+      return Optional.absent();
+    }
+  }
+
+  Optional<String> generateStoragePropertyQuery(List<String> oldBucketCols, List<ColumnOrder> oldSortCols, String oldNumBuckets, List<String> newBucketCols, List<ColumnOrder> newSortCols, String newNumBuckets) {
+    Optional<String> query = createStoragePropertyQuery(oldBucketCols, oldSortCols, oldNumBuckets, newBucketCols, newSortCols, newNumBuckets);
+    if (query.isPresent()) return Optional.of(getQueryPerfix() + query.get());
+    else return Optional.absent();
   }
 
   /**
@@ -376,7 +239,7 @@ public class AlterTableQueryGenerator implements QueryGenerator {
    * @param newNumBuckets
    * @return
    */
-  private Optional<String> getStoragePropertyQuery(List<String> oldBucketCols, List<ColumnOrder> oldSortCols, String oldNumBuckets, List<String> newBucketCols, List<ColumnOrder> newSortCols, String newNumBuckets) {
+  static Optional<String> createStoragePropertyQuery(List<String> oldBucketCols, List<ColumnOrder> oldSortCols, String oldNumBuckets, List<String> newBucketCols, List<ColumnOrder> newSortCols, String newNumBuckets) {
     StringBuilder queryBuilder = new StringBuilder();
     boolean foundDiff = false;
 
@@ -412,7 +275,13 @@ public class AlterTableQueryGenerator implements QueryGenerator {
       queryBuilder.append(" INTO ").append(newNumBuckets).append(" BUCKETS ");
     }
 
-    return Optional.of(getQueryPerfix() + queryBuilder.toString());
+    return Optional.of(queryBuilder.toString());
+  }
+
+  Optional<String> generateSerdeQuery(String oldSerde, Map<String, String> oldParameters, String newSerde, Map<String, String> newParameters) {
+    Optional<String> query = createSerdeQuery(oldSerde, oldParameters, newSerde, newParameters);
+    if (query.isPresent()) return Optional.of(getQueryPerfix() + query.get());
+    else return Optional.absent();
   }
 
   /**
@@ -420,7 +289,7 @@ public class AlterTableQueryGenerator implements QueryGenerator {
    *
    * @return
    */
-  private Optional<String> getSerdeQuery(String oldSerde, Map<String, String> oldParameters, String newSerde, Map<String, String> newParameters) {
+  static Optional<String> createSerdeQuery(String oldSerde, Map<String, String> oldParameters, String newSerde, Map<String, String> newParameters) {
     String query = "";
     boolean serdeChanged = false;
     if (null != newSerde) {
@@ -447,25 +316,38 @@ public class AlterTableQueryGenerator implements QueryGenerator {
     }
 
     if (!query.trim().isEmpty()) {
-      Optional.of(getQueryPerfix() + query);
+      Optional.of(query);
     }
 
     return Optional.absent();
   }
 
-  private Optional<String> getTablePropertiesQuery(Map oldProps, Map newProps) {
+  Optional<String> generateTablePropertiesQuery(Map oldProps, Map newProps) {
+    Optional<String> query = createTablePropertiesQuery(oldProps, newProps);
+    if (query.isPresent()) return Optional.of(getQueryPerfix() + query.get());
+    else return Optional.absent();
+  }
+
+
+  static Optional<String> createTablePropertiesQuery(Map oldProps, Map newProps) {
     if (null == newProps) {
       newProps = new HashMap();
     }
 
     if (!QueryGenerationUtils.isEqual(oldProps, newProps)) {
-      return Optional.of(getQueryPerfix() + " SET TBLPROPERTIES " + QueryGenerationUtils.getPropertiesAsKeyValues(newProps));
+      return Optional.of(" SET TBLPROPERTIES " + QueryGenerationUtils.getPropertiesAsKeyValues(newProps));
     }
 
     return Optional.absent();
   }
 
-  private Optional<String> getTableRenameQuery(String oldDatabaseName, String oldTableName, String newDatabaseName, String newTableName) {
+  Optional<String> generateTableRenameQuery(String oldDatabaseName, String oldTableName, String newDatabaseName, String newTableName) {
+    Optional<String> query = createTableRenameQuery(oldDatabaseName, oldTableName, newDatabaseName, newTableName);
+    if (query.isPresent()) return Optional.of(getQueryPerfix() + query.get());
+    else return Optional.absent();
+  }
+
+  static Optional<String> createTableRenameQuery(String oldDatabaseName, String oldTableName, String newDatabaseName, String newTableName) {
     if (Strings.isNullOrEmpty(oldTableName) || Strings.isNullOrEmpty(newTableName)) {
       LOG.error("oldTableName or newTableName is empty : {}, {} ", oldTableName, newTableName);
       throw new IllegalArgumentException("oldTableName and newTableName both should be non empty.");
@@ -475,7 +357,7 @@ public class AlterTableQueryGenerator implements QueryGenerator {
     String newName = (null != newDatabaseName ? newDatabaseName.trim() + "." : "") + newTableName.trim();
 
     if (!oldName.equals(newName)) {
-      return Optional.of(getQueryPerfix() + " RENAME TO " + newName);
+      return Optional.of(" RENAME TO " + newName);
     }
 
     return Optional.absent();

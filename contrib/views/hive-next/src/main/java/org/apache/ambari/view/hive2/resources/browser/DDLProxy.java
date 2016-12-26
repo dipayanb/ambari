@@ -26,6 +26,7 @@ import com.google.common.base.Optional;
 import com.google.common.base.Predicate;
 import com.google.common.base.Strings;
 import com.google.common.collect.FluentIterable;
+import com.google.gson.Gson;
 import org.apache.ambari.view.ViewContext;
 import org.apache.ambari.view.hive2.ConnectionSystem;
 import org.apache.ambari.view.hive2.actor.DatabaseManager;
@@ -206,46 +207,57 @@ public class DDLProxy {
 
 
   public Job createTable(String databaseName, TableMeta tableMeta, JobResourceManager resourceManager) throws ServiceException {
-
-      if (Strings.isNullOrEmpty(tableMeta.getDatabase())) {
-        tableMeta.setDatabase(databaseName);
-      }
-      String createTableQuery = new CreateTableQueryGenerator(tableMeta).getQuery();
+    if (Strings.isNullOrEmpty(tableMeta.getDatabase())) {
+      tableMeta.setDatabase(databaseName);
+    }
+    Optional<String> createTable = new CreateTableQueryGenerator(tableMeta).getQuery();
+    if (createTable.isPresent()) {
+      String createTableQuery = createTable.get();
       LOG.info("creating table with query : {}", createTableQuery);
       Map jobInfo = new HashMap<>();
       jobInfo.put("title", "Create table " + tableMeta.getDatabase() + "." + tableMeta.getTable());
       jobInfo.put("forcedContent", createTableQuery);
       jobInfo.put("dataBase", databaseName);
 
-    try {
-      Job job = new JobImpl(jobInfo);
-      JobController createdJobController = new JobServiceInternal().createJob(job, resourceManager);
-      Job returnableJob = createdJobController.getJobPOJO();
-      LOG.info("returning job with id {} for create table {}", returnableJob.getId(), tableMeta.getTable());
-      return returnableJob;
-    } catch (Throwable e) {
-      LOG.error("Exception occurred while creating the table for create Query : {}", createTableQuery, e);
-      throw new ServiceException(e);
+      try {
+        Job job = new JobImpl(jobInfo);
+        JobController createdJobController = new JobServiceInternal().createJob(job, resourceManager);
+        Job returnableJob = createdJobController.getJobPOJO();
+        LOG.info("returning job with id {} for create table {}", returnableJob.getId(), tableMeta.getTable());
+        return returnableJob;
+      } catch (Throwable e) {
+        LOG.error("Exception occurred while creating the table for create Query : {}", createTableQuery, e);
+        throw new ServiceException(e);
+      }
+    }else{
+      LOG.error("Cannot find proper information to create table for meta info {}", new Gson().toJson(tableMeta));
+      throw new ServiceException("Cannot find proper information to create table : " + new Gson().toJson(tableMeta));
     }
   }
 
   public Job deleteTable(String databaseName, String tableName, JobResourceManager resourceManager) throws ServiceException {
-    String deleteTableQuery = new DeleteTableQueryGenerator(databaseName, tableName).getQuery();
-    LOG.info("deleting table {} with query {}", databaseName + "." + tableName, deleteTableQuery );
-    Map jobInfo = new HashMap<>();
-    jobInfo.put("title", "Delete table " + databaseName + "." + tableName);
-    jobInfo.put("forcedContent", deleteTableQuery);
-    jobInfo.put("dataBase", databaseName);
+    Optional<String> deleteTable = new DeleteTableQueryGenerator(databaseName, tableName).getQuery();
+    if(deleteTable.isPresent()) {
+      String deleteTableQuery = deleteTable.get();
+      LOG.info("deleting table {} with query {}", databaseName + "." + tableName, deleteTableQuery);
+      Map jobInfo = new HashMap<>();
+      jobInfo.put("title", "Delete table " + databaseName + "." + tableName);
+      jobInfo.put("forcedContent", deleteTableQuery);
+      jobInfo.put("dataBase", databaseName);
 
-    try {
-      Job job = new JobImpl(jobInfo);
-      JobController createdJobController = new JobServiceInternal().createJob(job, resourceManager);
-      Job returnableJob = createdJobController.getJobPOJO();
-      LOG.info("returning job with id {} for the deletion of table : {}", returnableJob.getId(), tableName);
-      return returnableJob;
-    } catch (Throwable e) {
-      LOG.error("Exception occurred while deleting the table for delete Query : {}", deleteTableQuery, e);
-      throw new ServiceException(e);
+      try {
+        Job job = new JobImpl(jobInfo);
+        JobController createdJobController = new JobServiceInternal().createJob(job, resourceManager);
+        Job returnableJob = createdJobController.getJobPOJO();
+        LOG.info("returning job with id {} for the deletion of table : {}", returnableJob.getId(), tableName);
+        return returnableJob;
+      } catch (Throwable e) {
+        LOG.error("Exception occurred while deleting the table for delete Query : {}", deleteTableQuery, e);
+        throw new ServiceException(e);
+      }
+    }else{
+      LOG.error("Cannot find proper information to delete table for databaseName : {}, and tableName : {}", databaseName, tableName);
+      throw new ServiceException("Cannot find proper information to delete table for databaseName : " + databaseName + " and tableName : " + tableName);
     }
   }
 }

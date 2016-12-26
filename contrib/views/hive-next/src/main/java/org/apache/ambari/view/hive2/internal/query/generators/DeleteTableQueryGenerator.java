@@ -18,6 +18,7 @@
 
 package org.apache.ambari.view.hive2.internal.query.generators;
 
+import com.google.common.base.Optional;
 import org.apache.ambari.view.hive2.exceptions.ServiceException;
 import org.apache.parquet.Strings;
 
@@ -52,11 +53,15 @@ public class DeleteTableQueryGenerator implements QueryGenerator{
     this.purge = purge;
   }
 
+  /**
+   * @return
+   * @throws ServiceException
+   */
   @Override
-  public String getQuery() throws ServiceException {
+  public Optional<String> getQuery() throws ServiceException {
     if(Strings.isNullOrEmpty(this.getDatabaseName()) || Strings.isNullOrEmpty(this.getTableName()))
       throw new ServiceException("databaseName or tableName was null.");
 
-    return "DROP TABLE `" + databaseName + "`.`" + tableName + "`" + (this.getPurge() ? " PURGE " : "");
+    return Optional.of("DROP TABLE `" + databaseName + "`.`" + tableName + "`" + (this.getPurge() ? " PURGE " : ""));
   }
 }

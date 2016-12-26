@@ -1,3 +1,4 @@
+package org.apache.ambari.view.hive2
 /*
 * Licensed to the Apache Software Foundation (ASF) under one
 * or more contributor license agreements.  See the NOTICE file
@@ -16,11 +17,22 @@
 * limitations under the License.
 */
 
-package org.apache.ambari.view.hive2.internal.query.generators;
 
-import com.google.common.base.Optional;
-import org.apache.ambari.view.hive2.exceptions.ServiceException;
+import spock.lang.Specification
 
-public interface QueryGenerator {
-  Optional<String> getQuery() throws ServiceException;
+class AlterTableQueryGenerationSpecTest extends Specification {
+    def "pushing an element on the stack"() {
+        // blocks go here
+        setup:
+        def stack = new Stack()
+        def elem = "push me"
+
+        when:
+        stack.push(elem)
+
+        then:
+        !stack.empty
+        stack.size() == 1
+        stack.peek() == elem
+    }
 }

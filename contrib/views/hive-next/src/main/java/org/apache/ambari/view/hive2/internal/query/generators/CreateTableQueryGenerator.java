@@ -20,6 +20,7 @@ package org.apache.ambari.view.hive2.internal.query.generators;
 
 import com.google.common.base.Function;
 import com.google.common.base.Joiner;
+import com.google.common.base.Optional;
 import com.google.common.base.Strings;
 import com.google.common.collect.FluentIterable;
 import org.apache.ambari.view.hive2.internal.dto.ColumnInfo;
@@ -43,7 +44,7 @@ public class CreateTableQueryGenerator implements QueryGenerator{
   }
 
   @Override
-  public String getQuery(){
+  public Optional<String> getQuery(){
     StringBuffer query = new StringBuffer();
     query.append("CREATE TABLE ");
     query.append(tableMeta.getDatabase()).append(".");
@@ -125,7 +126,7 @@ public class CreateTableQueryGenerator implements QueryGenerator{
       }
     }
 
-    return query.toString();
+    return Optional.of(query.toString());
   }
 
   private String getSortColQuery(List<ColumnOrder> sortCols) {
