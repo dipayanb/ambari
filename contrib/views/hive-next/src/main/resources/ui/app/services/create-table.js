@@ -60,22 +60,22 @@ export default Ember.Service.extend({
     if (!Ember.isEmpty(storageSettings.rowFormat)) {
       let addParameters = false;
       if(!Ember.isEmpty(storageSettings.rowFormat.fieldTerminatedBy)) {
-        parameters['field.delim'] = storageSettings.rowFormat.fieldTerminatedBy.id;
+        parameters['field.delim'] = String.fromCharCode(storageSettings.rowFormat.fieldTerminatedBy.id);
         addParameters = true;
       }
 
       if(!Ember.isEmpty(storageSettings.rowFormat.linesTerminatedBy)) {
-        parameters['line.delim'] = storageSettings.rowFormat.linesTerminatedBy.id;
+        parameters['line.delim'] = String.fromCharCode(storageSettings.rowFormat.linesTerminatedBy.id);
         addParameters = true;
       }
 
       if(!Ember.isEmpty(storageSettings.rowFormat.nullDefinedAs)) {
-        parameters['serialization.null.format'] = storageSettings.rowFormat.fieldTerminatedBy.id;
+        parameters['serialization.null.format'] = String.fromCharCode(storageSettings.rowFormat.fieldTerminatedBy.id);
         addParameters = true;
       }
 
       if(!Ember.isEmpty(storageSettings.rowFormat.escapeDefinedAs)) {
-        parameters['escape.delim'] = storageSettings.rowFormat.linesTerminatedBy.id;
+        parameters['escape.delim'] = String.fromCharCode(storageSettings.rowFormat.linesTerminatedBy.id);
         addParameters = true;
       }
 
