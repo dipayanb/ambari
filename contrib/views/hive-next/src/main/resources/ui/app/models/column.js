@@ -7,7 +7,8 @@ export default Ember.Object.extend({
   type: datatypes[0],
   precision: 0,
   scale: 0,
-  isPartitionColumn: false,
+  isPartitioned: false,
+  isClustered: false,
   comment: '',
 
 
@@ -29,6 +30,18 @@ export default Ember.Object.extend({
 
   scaleError: Ember.computed('errors.@each', function() {
     return this.get('errors').findBy('type', 'scale');
+  }),
+
+  partitionObserver: Ember.observer('isPartitioned', function() {
+    if(this.get('isPartitioned')) {
+      this.set('isClustered', false);
+    }
+  }),
+
+  clusteredObserver: Ember.observer('isClustered', function() {
+    if(this.get('isClustered')) {
+      this.set('isPartitioned', false);
+    }
   }),
 
 

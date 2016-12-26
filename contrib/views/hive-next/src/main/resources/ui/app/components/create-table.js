@@ -21,7 +21,11 @@ export default Ember.Component.extend({
 
     create() {
       if (this.validate()) {
-        this.sendAction('create', this.get('settings'));
+        this.sendAction('create', {
+          columns: this.get('columns'),
+          settings: this.get('settings'),
+          properties: this.get('properties')
+        });
       }
     },
 
