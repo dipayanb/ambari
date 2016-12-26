@@ -1,7 +1,24 @@
-<h3>Here is query results.</h3>
-{{#light-table table height='100px' as |t| }}
-  {{t.head}}
-  {{t.body}}
+{{#light-table table height='35vh' as |t|}}
+
+  {{t.head
+  onColumnClick=(action 'onColumnClick')
+  iconAscending='fa fa-sort-asc'
+  iconDescending='fa fa-sort-desc'
+  fixed=true
+  }}
+
+  {{#t.body
+  canSelect=false
+  onScrolledToBottom=(action 'onScrolledToBottom')
+  as |body|
+  }}
+    {{#if isLoading}}
+      {{#body.loader}}
+        {{table-loader}}
+      {{/body.loader}}
+    {{/if}}
+  {{/t.body}}
+
 {{/light-table}}
 
 {{yield}}

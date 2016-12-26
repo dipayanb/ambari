@@ -31,5 +31,20 @@ module.exports = function(defaults) {
   // please specify an object with the list of modules as keys
   // along with the exports of each module as its value.
 
+
+   app.import('bower_components/codemirror/lib/codemirror.js');
+   app.import('bower_components/codemirror/addon/hint/sql-hint.js');
+   app.import('bower_components/codemirror/addon/hint/show-hint.js');
+   app.import('bower_components/codemirror/lib/codemirror.css');
+   app.import('bower_components/codemirror/addon/hint/show-hint.css');
+
+  /*
+  app.import('vendor/codemirror/codemirror-min.js');
+  app.import('vendor/codemirror/sql-hint.js');
+  app.import('vendor/codemirror/show-hint.js');
+  app.import('vendor/codemirror/codemirror.css');
+  app.import('vendor/codemirror/show-hint.css');
+  */
+
   return app.toTree();
 };
