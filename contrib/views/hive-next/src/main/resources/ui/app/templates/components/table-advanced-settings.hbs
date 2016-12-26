@@ -1,7 +1,28 @@
+<div class="panel panel-info">
+  <div class="panel-heading">
+    <div class="panel-title">
+      {{fa-icon "cog" size="lg"}}
+      &nbsp;&nbsp;&nbsp;Settings
+    </div>
+  </div>
+  <div class="panel-body">
+    <div class="checkbox">
+      <label>
+        {{input type="checkbox" checked=settings.transactional}} Transactional
+      </label>
+    </div>
+  </div>
+
+</div>
 
 <div class="panel panel-info">
   <div class="panel-heading">
-    <div class="panel-title"><button class="btn btn-primary {{if showLocationInput 'active'}}" {{action "toggleLocation"}}>{{fa-icon "plus"}}</button>&nbsp;&nbsp;&nbsp;Add Location  </div>
+    <div class="panel-title">
+      <button class="btn btn-primary {{if showLocationInput 'active'}}" {{action "toggleLocation"}}>
+        {{fa-icon (if showLocationInput "minus" "plus")}}
+      </button>
+      &nbsp;&nbsp;&nbsp;Add Location
+    </div>
   </div>
   {{#if showLocationInput}}
     <div class="panel-body">
@@ -24,7 +45,12 @@
 
 <div class="panel panel-info">
   <div class="panel-heading">
-    <div class="panel-title"><button class="btn btn-primary {{if showFileFormatInput 'active'}}" {{action "toggleFileFormat"}}>{{fa-icon "plus"}}</button>&nbsp;&nbsp;&nbsp;Add File Format</div>
+    <div class="panel-title">
+      <button class="btn btn-primary {{if showFileFormatInput 'active'}}" {{action "toggleFileFormat"}}>
+        {{fa-icon (if showFileFormatInput "minus" "plus")}}
+      </button>
+      &nbsp;&nbsp;&nbsp;Add File Format
+    </div>
   </div>
   {{#if showFileFormatInput}}
     <div class="panel-body">
@@ -40,24 +66,26 @@
           {{/power-select}}
         </div>
       </div>
-        {{#if customFileFormat}}
-          <div class="row fileformat-custom-row">
-            <div class="col-md-6 form-horizontal">
-              <div class="form-group">
-                <label class="col-md-3 control-label">Input Format</label>
-                <div class="col-md-9">
-                  {{input type="text" class="form-control" value=settings.fileFormat.inputFormat placeholder="Input format class"}}
-                </div>
+      {{#if customFileFormat}}
+        <div class="row fileformat-custom-row">
+          <div class="col-md-6 form-horizontal">
+            <div class="form-group">
+              <label class="col-md-3 control-label">Input Format</label>
+              <div class="col-md-9">
+                {{input type="text" class="form-control" value=settings.fileFormat.inputFormat
+                        placeholder="Input format class"}}
               </div>
-              <div class="form-group">
-                <label class="col-md-3 control-label">Output Format</label>
-                <div class="col-md-9">
-                  {{input type="text" class="form-control" value=settings.fileFormat.outputFormat placeholder="Output format class"}}
-                </div>
+            </div>
+            <div class="form-group">
+              <label class="col-md-3 control-label">Output Format</label>
+              <div class="col-md-9">
+                {{input type="text" class="form-control" value=settings.fileFormat.outputFormat
+                        placeholder="Output format class"}}
               </div>
             </div>
           </div>
-        {{/if}}
+        </div>
+      {{/if}}
 
     </div>
   {{/if}}
@@ -65,7 +93,12 @@
 
 <div class="panel panel-info">
   <div class="panel-heading">
-    <div class="panel-title"><button class="btn btn-primary {{if showRowFormatInput 'active'}}" {{action "toggleRowFormat"}}>{{fa-icon "plus"}}</button>&nbsp;&nbsp;&nbsp;Add Row Format</div>
+    <div class="panel-title">
+      <button class="btn btn-primary {{if showRowFormatInput 'active'}}" {{action "toggleRowFormat"}}>
+        {{fa-icon (if showRowFormatInput "minus" "plus")}}
+      </button>
+      &nbsp;&nbsp;&nbsp;Add Row Format
+    </div>
   </div>
   {{#if showRowFormatInput}}
     <div class="panel-body rowformat-custom-row">
@@ -78,7 +111,7 @@
                 selected=selectedFieldTerminator
                 options=terminationChars
                 searchField="name"
-                searchPlaceholder="Enter terminator chanracter"
+                searchPlaceholder="Enter terminator character"
                 onchange=(action "fieldTerminatorSelected") as |parameter|}}
                 {{parameter.name}}{{#if parameter.description}} - {{parameter.description}}{{/if}}
               {{/power-select}}
@@ -92,54 +125,13 @@
       <div class="row">
         <div class="col-md-6 form-horizontal">
           <div class="form-group">
-            <label class="col-md-4 control-label">Collection Item Terminated By</label>
-            <div class="col-md-7">
-              {{#power-select
-                selected=selectedCollectionItemTerminator
-                options=terminationChars
-                searchField="name"
-                searchPlaceholder="Enter terminator chanracter"
-                onchange=(action "collectionItemTerminatorSelected") as |parameter|}}
-                {{parameter.name}}{{#if parameter.description}} - {{parameter.description}}{{/if}}
-              {{/power-select}}
-            </div>
-            <div class="col-md-1">
-              <a class="text-danger"  {{action "clearCollectionItemTerminator"}}>{{fa-icon "times" size="lg"}}</a>
-            </div>
-          </div>
-
-        </div>
-      </div>
-      <div class="row">
-        <div class="col-md-6 form-horizontal">
-          <div class="form-group">
-            <label class="col-md-4 control-label">Map Key Terminated By</label>
-            <div class="col-md-7">
-              {{#power-select
-                selected=selectedMapKeyTerminator
-                options=terminationChars
-                searchField="name"
-                searchPlaceholder="Enter terminator chanracter"
-                onchange=(action "mapKeyTerminatorSelected") as |parameter|}}
-                {{parameter.name}}{{#if parameter.description}} - {{parameter.description}}{{/if}}
-              {{/power-select}}
-            </div>
-            <div class="col-md-1">
-              <a class="text-danger"  {{action "clearMapKeyTerminator"}}>{{fa-icon "times" size="lg"}}</a>
-            </div>
-          </div>
-        </div>
-      </div>
-      <div class="row">
-        <div class="col-md-6 form-horizontal">
-          <div class="form-group">
             <label class="col-md-4 control-label">Lines Terminated By</label>
             <div class="col-md-7">
               {{#power-select
                 selected=selectedLinesTerminator
                 options=terminationChars
                 searchField="name"
-                searchPlaceholder="Enter terminator chanracter"
+                searchPlaceholder="Enter terminator character"
                 onchange=(action "linesTerminatorSelected") as |parameter|}}
                 {{parameter.name}}{{#if parameter.description}} - {{parameter.description}}{{/if}}
               {{/power-select}}
@@ -159,13 +151,33 @@
                 selected=selectedNullDefinition
                 options=terminationChars
                 searchField="name"
-                searchPlaceholder="Enter terminator chanracter"
+                searchPlaceholder="Enter terminator character"
                 onchange=(action "nullDefinedAsSelected") as |parameter|}}
                 {{parameter.name}}{{#if parameter.description}} - {{parameter.description}}{{/if}}
               {{/power-select}}
             </div>
             <div class="col-md-1">
               <a class="text-danger" {{action "clearNullDefinition"}}>{{fa-icon "times" size="lg"}}</a>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="row">
+        <div class="col-md-6 form-horizontal">
+          <div class="form-group">
+            <label class="col-md-4 control-label">Escape Defined As</label>
+            <div class="col-md-7">
+              {{#power-select
+                selected=selectedEscapeDefinition
+                options=terminationChars
+                searchField="name"
+                searchPlaceholder="Enter terminator chanracter"
+                onchange=(action "escapeDefinedAsSelected") as |parameter|}}
+                {{parameter.name}}{{#if parameter.description}} - {{parameter.description}}{{/if}}
+              {{/power-select}}
+            </div>
+            <div class="col-md-1">
+              <a class="text-danger" {{action "clearEscapeDefinition"}}>{{fa-icon "times" size="lg"}}</a>
             </div>
           </div>
         </div>

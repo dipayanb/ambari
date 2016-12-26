@@ -11,10 +11,22 @@ export default Ember.Component.extend({
   hasPrecision: Ember.computed.oneWay('column.type.hasPrecision'),
   hasScale: Ember.computed.oneWay('column.type.hasScale'),
 
+  columnMetaType: null,
+
+
   didInsertElement() {
     Ember.run.later( () => {
       this.$('input').focus();
     });
+  },
+  didReceiveAttrs() {
+    if(this.get('column.isPartitioned')) {
+      this.set('columnMetaType', 'partitioned');
+    } else if(this.get('column.isPartitioned')) {
+      this.set('columnMetaType', 'clustered');
+    } else {
+      this.set('columnMetaType');
+    }
   },
 
   actions: {

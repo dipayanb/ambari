@@ -3,7 +3,7 @@ import Ember from 'ember';
 export default Ember.Component.extend({
   init() {
     this._super(...arguments);
-    this.set('columns', []);
+    this.set('columns', Ember.A());
     this.set('properties', []);
     this.set('settings', {});
   },
@@ -21,7 +21,12 @@ export default Ember.Component.extend({
 
     create() {
       if (this.validate()) {
-        this.sendAction('create', this.get('settings'));
+        this.sendAction('create', {
+          name: this.get('tableName'),
+          columns: this.get('columns'),
+          settings: this.get('settings'),
+          properties: this.get('properties')
+        });
       }
     },
 

@@ -31,10 +31,9 @@ export default Ember.Component.extend({
     if (!Ember.isEmpty(this.get('settings.rowFormat'))) {
       this.set('showRowFormatInput', true);
       this.set('selectedFieldTerminator', this.get('settings.rowFormat.fieldTerminatedBy'));
-      this.set('selectedCollectionItemTerminator', this.get('settings.rowFormat.fieldTerminatedBy'));
-      this.set('selectedMapKeyTerminator', this.get('settings.rowFormat.mapKeyTerminatedBy'));
       this.set('selectedLinesTerminator', this.get('settings.rowFormat.linesTerminatedBy'));
       this.set('selectedNullDefinition', this.get('settings.rowFormat.nullDefinedAs'));
+      this.set('selectedEscapeDefinition', this.get('settings.rowFormat.escapeDefinedAs'));
     }
   },
 
@@ -56,10 +55,9 @@ export default Ember.Component.extend({
   rowFormatInputObserver: Ember.observer('showRowFormatInput', function () {
     if (!this.get('showRowFormatInput')) {
       this.send('clearFieldTerminator');
-      this.send('clearCollectionItemTerminator');
-      this.send('clearMapKeyTerminator');
       this.send('clearLinesTerminator');
       this.send('clearNullDefinition');
+      this.send('clearEscapeDefinition');
       this.set('settings.rowFormat');
     } else {
       this.set('settings.rowFormat', {});
@@ -108,24 +106,6 @@ export default Ember.Component.extend({
       this.set('selectedFieldTerminator');
     },
 
-    collectionItemTerminatorSelected(terminator) {
-      this.set('settings.rowFormat.collectionItemTerminatedBy', terminator);
-      this.set('selectedCollectionItemTerminator', terminator);
-    },
-    clearCollectionItemTerminator() {
-      this.set('settings.rowFormat.collectionItemTerminatedBy');
-      this.set('selectedCollectionItemTerminator');
-    },
-
-    mapKeyTerminatorSelected(terminator) {
-      this.set('settings.rowFormat.mapKeyTerminatedBy', terminator);
-      this.set('selectedMapKeyTerminator', terminator);
-    },
-    clearMapKeyTerminator() {
-      this.set('settings.rowFormat.mapKeyTerminatedBy');
-      this.set('selectedMapKeyTerminator');
-    },
-
     linesTerminatorSelected(terminator) {
       this.set('settings.rowFormat.linesTerminatedBy', terminator);
       this.set('selectedLinesTerminator', terminator);
@@ -142,6 +122,15 @@ export default Ember.Component.extend({
     clearNullDefinition() {
       this.set('settings.rowFormat.nullDefinedAs');
       this.set('selectedNullDefinition');
+    },
+
+    escapeDefinedAsSelected(terminator) {
+      this.set('settings.rowFormat.escapeDefinedAs', terminator);
+      this.set('selectedEscapeDefinition', terminator);
+    },
+    clearEscapeDefinition() {
+      this.set('settings.rowFormat.escapeDefinedAs');
+      this.set('selectedEscapeDefinition');
     },
   }
 });
