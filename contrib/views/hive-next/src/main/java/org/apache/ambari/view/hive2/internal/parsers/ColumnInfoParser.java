@@ -20,6 +20,9 @@ package org.apache.ambari.view.hive2.internal.parsers;
 
 import org.apache.ambari.view.hive2.client.Row;
 import org.apache.ambari.view.hive2.internal.dto.ColumnInfo;
+import org.apache.parquet.Strings;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -29,6 +32,7 @@ import java.util.Map;
  * Parses the columns from the output of 'describe formatted ${tableName}' output
  */
 public class ColumnInfoParser extends AbstractTableMetaParser<List<ColumnInfo>> {
+  private static final Logger LOG = LoggerFactory.getLogger(ColumnInfoParser.class);
 
   public ColumnInfoParser() {
     super("# col_name", "", "");
@@ -75,8 +79,17 @@ public class ColumnInfoParser extends AbstractTableMetaParser<List<ColumnInfo>> 
     for(Object obj: parsedSection.values()) {
       if(obj instanceof Entry) {
         Entry entry = (Entry)obj;
-        ColumnInfo columnInfo = new ColumnInfo(entry.getName(), entry.getValue(), entry.getComment());
+        String typeInfo = entry.getValue();
+        // parse precision and scale
+        List<String> typePrecisionScale = ParserUtils.parseColumnDataType(typeInfo);
+        String datatype = typePrecisionScale.get(0);
+        String precisionString = typePrecisionScale.get(1);
+        String scaleString = typePrecisionScale.get(2);
+        Integer precision = !Strings.isNullOrEmpty(precisionString) ? Integer.valueOf(precisionString.trim()): null;
+        Integer scale = !Strings.isNullOrEmpty(scaleString) ? Integer.valueOf(scaleString.trim()): null;
+        ColumnInfo columnInfo = new ColumnInfo(entry.getName(), datatype, precision, scale, entry.getComment());
         columns.add(columnInfo);
+        LOG.debug("found column definition : {}", columnInfo);
       }
     }
     return columns;

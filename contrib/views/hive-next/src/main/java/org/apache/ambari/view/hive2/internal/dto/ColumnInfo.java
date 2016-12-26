@@ -19,7 +19,6 @@
 package org.apache.ambari.view.hive2.internal.dto;
 
 import org.apache.commons.lang3.builder.EqualsBuilder;
-import org.apache.commons.lang3.builder.HashCodeBuilder;
 
 /**
  *
@@ -27,18 +26,17 @@ import org.apache.commons.lang3.builder.HashCodeBuilder;
 public class ColumnInfo {
   private String name;
   private String type;
+  private Integer precision;
+  private Integer scale;
   private String comment;
 
-  public ColumnInfo(String name, String type, String comment) {
+  public ColumnInfo(String name, String type, Integer precision, Integer scale, String comment) {
     this.name = name;
     this.type = type;
+    this.precision = precision;
+    this.scale = scale;
     this.comment = comment;
   }
-
-  public ColumnInfo(String name, String type) {
-    this(name, type, "");
-  }
-
 
   public String getName() {
     return name;
@@ -48,8 +46,34 @@ public class ColumnInfo {
     return type;
   }
 
+  public Integer getPrecision() {
+    return precision;
+  }
+
+  public void setPrecision(Integer precision) {
+    this.precision = precision;
+  }
+
+  public Integer getScale() {
+    return scale;
+  }
+
+  public void setScale(Integer scale) {
+    this.scale = scale;
+  }
+
   public String getComment() {
     return comment;
+  }
+
+  @Override
+  public int hashCode() {
+    int result = name.hashCode();
+    result = 31 * result + type.hashCode();
+    result = 31 * result + (precision != null ? precision.hashCode() : 0);
+    result = 31 * result + (scale != null ? scale.hashCode() : 0);
+    result = 31 * result + (comment != null ? comment.hashCode() : 0);
+    return result;
   }
 
   @Override
@@ -69,10 +93,13 @@ public class ColumnInfo {
 
   @Override
   public String toString() {
-    return "ColumnInfo{" +
-        "name='" + name + '\'' +
-        ", type='" + type + '\'' +
-        ", comment='" + comment + '\'' +
-        '}';
+    final StringBuilder sb = new StringBuilder("ColumnInfo{");
+    sb.append("name='").append(name).append('\'');
+    sb.append(", type='").append(type).append('\'');
+    sb.append(", precision=").append(precision);
+    sb.append(", scale=").append(scale);
+    sb.append(", comment='").append(comment).append('\'');
+    sb.append('}');
+    return sb.toString();
   }
 }
