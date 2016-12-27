@@ -1,4 +1,3 @@
-package org.apache.ambari.view.hive2
 /*
 * Licensed to the Apache Software Foundation (ASF) under one
 * or more contributor license agreements.  See the NOTICE file
@@ -18,6 +17,8 @@ package org.apache.ambari.view.hive2
 */
 
 
+package org.apache.ambari.view.hive2.internal.query.generators;
+
 import spock.lang.Specification
 
 class AlterTableQueryGenerationSpecTest extends Specification {
@@ -31,6 +32,22 @@ class AlterTableQueryGenerationSpecTest extends Specification {
         stack.push(elem)
 
         then:
+        println "inside AlterTableQueryGenerationSpecTest"
+        !stack.empty
+        stack.size() == 1
+        stack.peek() == elem
+    }
+    def "pushing again an element on the stack"() {
+        // blocks go here
+        setup:
+        def stack = new Stack()
+        def elem = "push me"
+
+        when:
+        stack.push(elem)
+
+        then:
+        println "inside AlterTableQueryGenerationSpecTest"
         !stack.empty
         stack.size() == 1
         stack.peek() == elem
