@@ -17,19 +17,38 @@ export default Ember.Service.extend({
     });
 
     return new Promise( (resolve, reject) => {
-      this.get('store').adapterFor('table').createTable(tableInfo).then(function(data) {
-        console.log('created');
-        resolve('created');
-      }, function(err) {
+      this.get('store').adapterFor('table').createTable(tableInfo).then((data) => {
+        this.get('store').pushPayload({job: data});
+        resolve(this.get('store').peekRecord('job', data.id));
+      }, (err) => {
         reject(err);
       });
     });
   },
 
-  waitForJobFinish(jobId) {
-    return new Promise(function (resolve, reject) {
-
+  waitForJobToComplete(jobId, after) {
+    return new Ember.RSVP.Promise((resolve, reject) => {
+      Ember.run.later(() => {
+        this.get('store').findRecord('job', jobId, {reload: true})
+          .then((job) => {
+            let status = job.get('status').toLowerCase();
+            if(status === 'succeeded') {
+              this._fetchDummyResult(jobId);
+              resolve();
+            } else if(status === 'error') {
+              reject()
+            } else {
+              resolve(this.waitForJobToComplete(jobId, after));
+            }
+          }, (error) => {
+            reject(error);
+          });
+      }, after);
     });
+  },
+
+  _fetchDummyResult(jobId) {
+    this.get('store').adapterFor('job').fetchResult(jobId);
   },
 
   _getDetailedInfo(settings) {

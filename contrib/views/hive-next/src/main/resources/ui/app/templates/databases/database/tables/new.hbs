@@ -1,4 +1,18 @@
 <div class="col-md-12 table-info">
+  {{#if showCreateTableModal}}
+    {{#modal-dialog
+      translucentOverlay=true
+      container-class="modal-dialog modal-sm"}}
+      <div class="modal-content">
+        <div class="modal-header text-danger">
+          <p class="modal-title">{{fa-icon "plus"}} Create table</p>
+        </div>
+        <div class="modal-body text-center text-primary">
+          <p>{{createTableMessage}}</p>
+        </div>
+      </div><!-- /.modal-content -->
+    {{/modal-dialog}}
+  {{/if}}
   <div class="table-header row">
     <p class="text-uppercase">table<strong>&nbsp;&nbsp;>&nbsp;&nbsp;create table</strong></p>
   </div>
