@@ -74,31 +74,33 @@ public class CreateTableQueryGenerator implements QueryGenerator{
       }
       // TODO : Skewed information not available right now.
 
-      if (!Strings.isNullOrEmpty(tableMeta.getStorageInfo().getParameters().get(ESCAPE_DELIM)) ||
-        !Strings.isNullOrEmpty(tableMeta.getStorageInfo().getParameters().get(FIELD_DELIM)) ||
-        !Strings.isNullOrEmpty(tableMeta.getStorageInfo().getParameters().get(COLELCTION_DELIM)) ||
-        !Strings.isNullOrEmpty(tableMeta.getStorageInfo().getParameters().get(MAPKEY_DELIM)) ||
-        !Strings.isNullOrEmpty(tableMeta.getStorageInfo().getParameters().get(LINE_DELIM)) ||
-        !Strings.isNullOrEmpty(tableMeta.getStorageInfo().getParameters().get(SERIALIZATION_NULL_FORMAT))
-        ) {
-        query.append(" ROW FORMAT DELIMITED ");
-        if (!Strings.isNullOrEmpty(tableMeta.getStorageInfo().getParameters().get(FIELD_DELIM))) {
-          query.append(" FIELDS TERMINATED BY '").append(tableMeta.getStorageInfo().getParameters().get(FIELD_DELIM)).append("'");
-        }
-        if (!Strings.isNullOrEmpty(tableMeta.getStorageInfo().getParameters().get(ESCAPE_DELIM))) {
-          query.append(" ESCAPED BY '").append(tableMeta.getStorageInfo().getParameters().get(ESCAPE_DELIM)).append("'");
-        }
-        if (!Strings.isNullOrEmpty(tableMeta.getStorageInfo().getParameters().get(COLELCTION_DELIM))) {
-          query.append(" COLLECTION ITEMS TERMINATED BY '").append(tableMeta.getStorageInfo().getParameters().get(COLELCTION_DELIM)).append("'");
-        }
-        if (!Strings.isNullOrEmpty(tableMeta.getStorageInfo().getParameters().get(MAPKEY_DELIM))) {
-          query.append(" MAP KEYS TERMINATED BY '").append(tableMeta.getStorageInfo().getParameters().get(MAPKEY_DELIM)).append("'");
-        }
-        if (!Strings.isNullOrEmpty(tableMeta.getStorageInfo().getParameters().get(LINE_DELIM))) {
-          query.append(" LINES TERMINATED BY '").append(tableMeta.getStorageInfo().getParameters().get(LINE_DELIM)).append("'");
-        }
-        if (!Strings.isNullOrEmpty(tableMeta.getStorageInfo().getParameters().get(SERIALIZATION_NULL_FORMAT))) {
-          query.append(" NULL DEFINED AS '").append(tableMeta.getStorageInfo().getParameters().get(SERIALIZATION_NULL_FORMAT)).append("'");
+      if(!isNullOrEmpty(tableMeta.getStorageInfo().getParameters())) {
+        if (!Strings.isNullOrEmpty(tableMeta.getStorageInfo().getParameters().get(ESCAPE_DELIM)) ||
+          !Strings.isNullOrEmpty(tableMeta.getStorageInfo().getParameters().get(FIELD_DELIM)) ||
+          !Strings.isNullOrEmpty(tableMeta.getStorageInfo().getParameters().get(COLELCTION_DELIM)) ||
+          !Strings.isNullOrEmpty(tableMeta.getStorageInfo().getParameters().get(MAPKEY_DELIM)) ||
+          !Strings.isNullOrEmpty(tableMeta.getStorageInfo().getParameters().get(LINE_DELIM)) ||
+          !Strings.isNullOrEmpty(tableMeta.getStorageInfo().getParameters().get(SERIALIZATION_NULL_FORMAT))
+          ) {
+          query.append(" ROW FORMAT DELIMITED ");
+          if (!Strings.isNullOrEmpty(tableMeta.getStorageInfo().getParameters().get(FIELD_DELIM))) {
+            query.append(" FIELDS TERMINATED BY '").append(tableMeta.getStorageInfo().getParameters().get(FIELD_DELIM)).append("'");
+          }
+          if (!Strings.isNullOrEmpty(tableMeta.getStorageInfo().getParameters().get(ESCAPE_DELIM))) {
+            query.append(" ESCAPED BY '").append(tableMeta.getStorageInfo().getParameters().get(ESCAPE_DELIM)).append("'");
+          }
+          if (!Strings.isNullOrEmpty(tableMeta.getStorageInfo().getParameters().get(COLELCTION_DELIM))) {
+            query.append(" COLLECTION ITEMS TERMINATED BY '").append(tableMeta.getStorageInfo().getParameters().get(COLELCTION_DELIM)).append("'");
+          }
+          if (!Strings.isNullOrEmpty(tableMeta.getStorageInfo().getParameters().get(MAPKEY_DELIM))) {
+            query.append(" MAP KEYS TERMINATED BY '").append(tableMeta.getStorageInfo().getParameters().get(MAPKEY_DELIM)).append("'");
+          }
+          if (!Strings.isNullOrEmpty(tableMeta.getStorageInfo().getParameters().get(LINE_DELIM))) {
+            query.append(" LINES TERMINATED BY '").append(tableMeta.getStorageInfo().getParameters().get(LINE_DELIM)).append("'");
+          }
+          if (!Strings.isNullOrEmpty(tableMeta.getStorageInfo().getParameters().get(SERIALIZATION_NULL_FORMAT))) {
+            query.append(" NULL DEFINED AS '").append(tableMeta.getStorageInfo().getParameters().get(SERIALIZATION_NULL_FORMAT)).append("'");
+          }
         }
       }
 
@@ -139,6 +141,10 @@ public class CreateTableQueryGenerator implements QueryGenerator{
 
   private boolean isNullOrEmpty(Collection collection) {
     return null == collection || collection.isEmpty();
+  }
+
+  private boolean isNullOrEmpty(Map map) {
+    return null == map || map.isEmpty();
   }
 
   private String getSortColQuery(List<ColumnOrder> sortCols) {
