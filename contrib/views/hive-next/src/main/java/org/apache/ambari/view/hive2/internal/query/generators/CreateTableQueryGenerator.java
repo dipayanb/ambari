@@ -163,10 +163,27 @@ public class CreateTableQueryGenerator implements QueryGenerator{
       @Nullable
       @Override
       public String apply(@Nullable ColumnInfo column) {
-        return column.getName() + " " + column.getType() + " COMMENT '" + column.getComment() + "'";
+        StringBuilder colQuery = new StringBuilder(column.getName());
+        colQuery.append(" ").append(column.getType());
+        if(!isNullOrZero(column.getPrecision())){
+          if(!isNullOrZero(column.getScale())){
+            colQuery.append("(").append(column.getPrecision()).append(",").append(column.getScale()).append(")");
+          }else{
+            colQuery.append("(").append(column.getPrecision()).append(")");
+          }
+        }
+        if(!Strings.isNullOrEmpty(column.getComment())) {
+          colQuery.append(" COMMENT '").append(column.getComment()).append("'");
+        }
+
+        return colQuery.toString();
       }
     }).toList();
 
     return Joiner.on(",").join(columnQuery);
+  }
+
+  public static boolean isNullOrZero(Integer integer) {
+    return null == integer || 0 == integer;
   }
 }
