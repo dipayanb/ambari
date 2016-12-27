@@ -104,10 +104,15 @@ public class CreateTableQueryGenerator implements QueryGenerator{
         }
       }
 
+      // STORED AS file_format
+      if(!Strings.isNullOrEmpty(tableMeta.getStorageInfo().getFileFormat()) && !tableMeta.getStorageInfo().getFileFormat().trim().isEmpty()){
+        query.append(" STORED AS ").append(tableMeta.getStorageInfo().getFileFormat().trim());
+      }
+
       if (!Strings.isNullOrEmpty(tableMeta.getStorageInfo().getInputFormat()) ||
         !Strings.isNullOrEmpty(tableMeta.getStorageInfo().getOutputFormat())
         ) {
-        query.append(" STORED AS ");
+        query.append(" STORED BY ");
         if (!Strings.isNullOrEmpty(tableMeta.getStorageInfo().getInputFormat())) {
           query.append(" INPUTFORMAT '").append(tableMeta.getStorageInfo().getInputFormat()).append("'");
         }

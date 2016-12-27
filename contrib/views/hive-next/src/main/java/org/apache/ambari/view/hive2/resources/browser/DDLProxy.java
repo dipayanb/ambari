@@ -204,18 +204,21 @@ public class DDLProxy {
     return infos;
   }
 
+  public String generateCreateTableDDL(String databaseName, TableMeta tableMeta) {
+    if (Strings.isNullOrEmpty(tableMeta.getDatabase())) {
+      tableMeta.setDatabase(databaseName);
+    }
+    String createTableQuery = new CreateTableQueryGenerator(tableMeta).getQuery();
+    LOG.info("generated create table query : {}", createTableQuery);
+    return createTableQuery;
+  }
 
   public Job createTable(String databaseName, TableMeta tableMeta, JobResourceManager resourceManager) throws ServiceException {
-
-      if (Strings.isNullOrEmpty(tableMeta.getDatabase())) {
-        tableMeta.setDatabase(databaseName);
-      }
-      String createTableQuery = new CreateTableQueryGenerator(tableMeta).getQuery();
-      LOG.info("creating table with query : {}", createTableQuery);
-      Map jobInfo = new HashMap<>();
-      jobInfo.put("title", "Create table " + tableMeta.getDatabase() + "." + tableMeta.getTable());
-      jobInfo.put("forcedContent", createTableQuery);
-      jobInfo.put("dataBase", databaseName);
+    String createTableQuery = this.generateCreateTableDDL(databaseName, tableMeta);
+    Map jobInfo = new HashMap<>();
+    jobInfo.put("title", "Create table " + tableMeta.getDatabase() + "." + tableMeta.getTable());
+    jobInfo.put("forcedContent", createTableQuery);
+    jobInfo.put("dataBase", databaseName);
 
     try {
       Job job = new JobImpl(jobInfo);
@@ -230,8 +233,7 @@ public class DDLProxy {
   }
 
   public Job deleteTable(String databaseName, String tableName, JobResourceManager resourceManager) throws ServiceException {
-    String deleteTableQuery = new DeleteTableQueryGenerator(databaseName, tableName).getQuery();
-    LOG.info("deleting table {} with query {}", databaseName + "." + tableName, deleteTableQuery );
+    String deleteTableQuery = generateDeleteTableDDL(databaseName, tableName);
     Map jobInfo = new HashMap<>();
     jobInfo.put("title", "Delete table " + databaseName + "." + tableName);
     jobInfo.put("forcedContent", deleteTableQuery);
@@ -247,5 +249,11 @@ public class DDLProxy {
       LOG.error("Exception occurred while deleting the table for delete Query : {}", deleteTableQuery, e);
       throw new ServiceException(e);
     }
+  }
+
+  public String generateDeleteTableDDL(String databaseName, String tableName) throws ServiceException {
+    String deleteTableQuery = new DeleteTableQueryGenerator(databaseName, tableName).getQuery();
+    LOG.info("deleting table {} with query {}", databaseName + "." + tableName, deleteTableQuery);
+    return deleteTableQuery;
   }
 }

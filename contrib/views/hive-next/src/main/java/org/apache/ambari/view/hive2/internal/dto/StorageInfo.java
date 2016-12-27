@@ -32,7 +32,16 @@ public class StorageInfo {
   private String numBuckets;
   private List<String> bucketCols;
   private List<ColumnOrder> sortCols;
+  private String fileFormat;
   private Map<String, String> parameters;
+
+  public String getFileFormat() {
+    return fileFormat;
+  }
+
+  public void setFileFormat(String fileFormat) {
+    this.fileFormat = fileFormat;
+  }
 
   public String getSerdeLibrary() {
     return serdeLibrary;
@@ -108,6 +117,7 @@ public class StorageInfo {
         ", numBuckets='" + numBuckets + '\'' +
         ", bucketCols='" + bucketCols + '\'' +
         ", sortCols='" + sortCols + '\'' +
+        ", fileFormat='" + fileFormat + '\'' +
         ", parameters=" + parameters +
         '}';
   }

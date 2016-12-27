@@ -25,7 +25,6 @@ import org.apache.ambari.view.hive2.internal.dto.DatabaseResponse;
 import org.apache.ambari.view.hive2.internal.dto.TableMeta;
 import org.apache.ambari.view.hive2.internal.dto.TableResponse;
 import org.apache.ambari.view.hive2.resources.jobs.viewJobs.Job;
-import org.apache.ambari.view.hive2.resources.jobs.viewJobs.JobImpl;
 import org.apache.ambari.view.hive2.resources.jobs.viewJobs.JobResourceManager;
 import org.apache.ambari.view.hive2.utils.ServiceFormattedException;
 import org.apache.ambari.view.hive2.utils.SharedObjectsFactory;
@@ -51,6 +50,8 @@ import java.util.Set;
  */
 public class DDLService extends BaseService {
 
+  private static final String CREATE_TABLE = "create-table";
+  private static final String ALTER_TABLE = "alter-table";
   private final DDLProxy proxy;
   private JobResourceManager resourceManager;
 
@@ -92,7 +93,6 @@ public class DDLService extends BaseService {
   }
 
 
-
   @GET
   @Path("databases/{database_id}/tables")
   @Produces(MediaType.APPLICATION_JSON)
@@ -109,12 +109,35 @@ public class DDLService extends BaseService {
   @Consumes(MediaType.APPLICATION_JSON)
   public Response createTable(@PathParam("database_id") String databaseName, TableMetaRequest request) {
     try {
-    Job job = proxy.createTable(databaseName, request.tableInfo, getResourceManager());
-    JSONObject response = new JSONObject();
-    response.put("job", job);
-    return Response.status(Response.Status.ACCEPTED).entity(job).build();
+      Job job = proxy.createTable(databaseName, request.tableInfo, getResourceManager());
+      JSONObject response = new JSONObject();
+      response.put("job", job);
+      return Response.status(Response.Status.ACCEPTED).entity(job).build();
     } catch (ServiceException e) {
       LOG.error("Exception occurred while creatint table for db {} with details : {}", databaseName, request.tableInfo, e);
+      throw new ServiceFormattedException(e);
+    }
+  }
+
+  @POST
+  @Path("databases/{database_id}/tables/ddl")
+  @Produces(MediaType.APPLICATION_JSON)
+  @Consumes(MediaType.APPLICATION_JSON)
+  public Response generateDDL(TableMetaRequest request, @QueryParam("query_type") String queryType) {
+    try {
+      String query = null;
+      if (queryType.equals(CREATE_TABLE)) {
+        query = proxy.generateCreateTableDDL(request.tableInfo.getDatabase(), request.tableInfo);
+      }else if(queryType.equals(ALTER_TABLE)){
+        // TODO : TBD when alter table is committed.
+      }else{
+        throw new ServiceException("query_type = '" + queryType + "' is not supported");
+      }
+      JSONObject response = new JSONObject();
+      response.put("ddl", new DDL(query));
+      return Response.status(Response.Status.ACCEPTED).entity(response).build();
+    } catch (ServiceException e) {
+      LOG.error("Exception occurred while generating {} ddl for : {}", queryType, request.tableInfo, e);
       throw new ServiceFormattedException(e);
     }
   }
@@ -136,10 +159,10 @@ public class DDLService extends BaseService {
   @Consumes(MediaType.APPLICATION_JSON)
   public Response deleteTable(@PathParam("database_id") String databaseName, @PathParam("table_id") String tableName) {
     try {
-    Job job = proxy.deleteTable(databaseName, tableName, getResourceManager());
-    JSONObject response = new JSONObject();
-    response.put("job", job);
-    return Response.status(Response.Status.ACCEPTED).entity(response).build();
+      Job job = proxy.deleteTable(databaseName, tableName, getResourceManager());
+      JSONObject response = new JSONObject();
+      response.put("job", job);
+      return Response.status(Response.Status.ACCEPTED).entity(response).build();
     } catch (ServiceException e) {
       LOG.error("Exception occurred while deleting table for db {}, tableName : {}", databaseName, tableName, e);
       throw new ServiceFormattedException(e);
@@ -157,6 +180,13 @@ public class DDLService extends BaseService {
     return Response.ok(response).build();
   }
 
+  public static class DDL {
+    String query;
+
+    public DDL(String query) {
+      this.query = query;
+    }
+  }
 
   /**
    * Wrapper class for table meta request

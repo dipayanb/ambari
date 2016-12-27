@@ -205,7 +205,6 @@ public class DDLDelegatorImpl implements DDLDelegator {
     if (submitResult instanceof NoResult) {
       LOG.info("Query returned with no result.");
       return Optional.absent();
-
     }
 
     if (submitResult instanceof ExecutionFailed) {
