@@ -25,6 +25,7 @@ import org.apache.ambari.view.hive2.internal.dto.DatabaseResponse;
 import org.apache.ambari.view.hive2.internal.dto.TableMeta;
 import org.apache.ambari.view.hive2.internal.dto.TableResponse;
 import org.apache.ambari.view.hive2.resources.jobs.viewJobs.Job;
+import org.apache.ambari.view.hive2.resources.jobs.viewJobs.JobImpl;
 import org.apache.ambari.view.hive2.resources.jobs.viewJobs.JobResourceManager;
 import org.apache.ambari.view.hive2.utils.ServiceFormattedException;
 import org.apache.ambari.view.hive2.utils.SharedObjectsFactory;
@@ -106,14 +107,14 @@ public class DDLService extends BaseService {
   @Path("databases/{database_id}/tables")
   @Produces(MediaType.APPLICATION_JSON)
   @Consumes(MediaType.APPLICATION_JSON)
-  public Response createTable(@PathParam("database_id") String databaseName, TableMeta tableMeta) {
+  public Response createTable(@PathParam("database_id") String databaseName, TableMetaRequest request) {
     try {
-    Job job = proxy.createTable(databaseName, tableMeta, getResourceManager());
+    Job job = proxy.createTable(databaseName, request.tableInfo, getResourceManager());
     JSONObject response = new JSONObject();
     response.put("job", job);
     return Response.status(Response.Status.ACCEPTED).entity(job).build();
     } catch (ServiceException e) {
-      LOG.error("Exception occurred while creatint table for db {} with details : {}", databaseName, tableMeta, e);
+      LOG.error("Exception occurred while creatint table for db {} with details : {}", databaseName, request.tableInfo, e);
       throw new ServiceFormattedException(e);
     }
   }
@@ -154,5 +155,13 @@ public class DDLService extends BaseService {
     JSONObject response = new JSONObject();
     response.put("tableInfo", meta);
     return Response.ok(response).build();
+  }
+
+
+  /**
+   * Wrapper class for table meta request
+   */
+  public static class TableMetaRequest {
+    public TableMeta tableInfo;
   }
 }

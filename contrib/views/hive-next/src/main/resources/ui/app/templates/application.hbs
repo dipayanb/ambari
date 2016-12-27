@@ -1,4 +1,9 @@
 <div class="container-fluid">
+  <div class="flash-messages-wrap">
+    {{#each flashMessages.queue as |flash|}}
+      {{alert-message flash=flash}}
+    {{/each}}
+  </div>
   <div class="row">
     <div class="col-md-12">
       {{top-application-bar}}

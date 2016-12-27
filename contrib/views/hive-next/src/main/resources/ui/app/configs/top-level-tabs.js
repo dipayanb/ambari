@@ -40,7 +40,7 @@ let topLevelTabs = [
   Ember.Object.create({
     name: 'notifications',
     label: 'NOTIFICATIONS',
-    link: 'notifications',
+    link: 'messages',
     faIcon: 'bell',
     pullRight: true
   })

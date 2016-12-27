@@ -10,7 +10,6 @@ Router.map(function() {
   this.route('jobs');
   this.route('udfs');
   this.route('settings');
-  this.route('notifications');
   this.route('savedqueries');
 
   this.route('databases', function() {
@@ -28,6 +27,9 @@ Router.map(function() {
         })
       });
     });
+  });
+  this.route('messages', function() {
+    this.route('message', {path: '/:message_id'});
   });
 
   this.route('query', function() {
