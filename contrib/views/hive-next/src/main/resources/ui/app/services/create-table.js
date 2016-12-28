@@ -17,7 +17,6 @@ export default Ember.Service.extend({
       detailedInfo: detailedInfo,
       storageInfo: storageInfo
     });
-    debugger;
     return new Promise((resolve, reject) => {
       this.get('store').adapterFor('table').createTable(tableInfo).then((data) => {
         this.get('store').pushPayload({job: data});
@@ -61,10 +60,6 @@ export default Ember.Service.extend({
       detailedInfo['location'] = settings.settings.location;
     }
 
-    if (!Ember.isEmpty(settings.settings.numBuckets)) {
-      detailedInfo['numBuckets'] = settings.settings.numBuckets;
-    }
-
     return detailedInfo;
 
   },
@@ -73,6 +68,8 @@ export default Ember.Service.extend({
     const storageSettings = settings.settings;
     let storageInfo = {};
     let parameters = {};
+
+
 
     if (!(Ember.isEmpty(storageSettings.fileFormat) || Ember.isEmpty(storageSettings.fileFormat.type))) {
       storageInfo.fileFormat = storageSettings.fileFormat.type;
@@ -108,6 +105,19 @@ export default Ember.Service.extend({
         storageInfo.parameters = parameters;
       }
     }
+
+    if (!Ember.isEmpty(settings.settings.numBuckets)) {
+      storageInfo['numBuckets'] = settings.settings.numBuckets;
+    }
+
+    let clusteredColumnNames =  settings.columns.filterBy('isClustered', true).map((column) => {
+      return column.get('name');
+    });
+
+    if (clusteredColumnNames.length > 0) {
+      storageInfo['bucketCols'] = clusteredColumnNames;
+    }
+
     return storageInfo;
   },
 
