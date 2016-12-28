@@ -7,16 +7,18 @@ export default Ember.Service.extend({
     let detailedInfo = this._getDetailedInfo(settings);
     let storageInfo = this._getStorageInfo(settings);
     let columns = this._getColumns(settings);
+    let partitionColumns = this._getPartitionColumns(settings);
 
     let tableInfo = Ember.Object.create({
       database: database,
       table: settings.name,
       columns: columns,
+      partitionInfo: { columns: partitionColumns },
       detailedInfo: detailedInfo,
       storageInfo: storageInfo
     });
-
-    return new Promise( (resolve, reject) => {
+    debugger;
+    return new Promise((resolve, reject) => {
       this.get('store').adapterFor('table').createTable(tableInfo).then((data) => {
         this.get('store').pushPayload({job: data});
         resolve(this.get('store').peekRecord('job', data.id));
@@ -32,10 +34,10 @@ export default Ember.Service.extend({
         this.get('store').findRecord('job', jobId, {reload: true})
           .then((job) => {
             let status = job.get('status').toLowerCase();
-            if(status === 'succeeded') {
+            if (status === 'succeeded') {
               this._fetchDummyResult(jobId);
               resolve();
-            } else if(status === 'error') {
+            } else if (status === 'error') {
               reject()
             } else {
               resolve(this.waitForJobToComplete(jobId, after));
@@ -59,6 +61,10 @@ export default Ember.Service.extend({
       detailedInfo['location'] = settings.settings.location;
     }
 
+    if (!Ember.isEmpty(settings.settings.numBuckets)) {
+      detailedInfo['numBuckets'] = settings.settings.numBuckets;
+    }
+
     return detailedInfo;
 
   },
@@ -78,27 +84,27 @@ export default Ember.Service.extend({
 
     if (!Ember.isEmpty(storageSettings.rowFormat)) {
       let addParameters = false;
-      if(!Ember.isEmpty(storageSettings.rowFormat.fieldTerminatedBy)) {
+      if (!Ember.isEmpty(storageSettings.rowFormat.fieldTerminatedBy)) {
         parameters['field.delim'] = String.fromCharCode(storageSettings.rowFormat.fieldTerminatedBy.id);
         addParameters = true;
       }
 
-      if(!Ember.isEmpty(storageSettings.rowFormat.linesTerminatedBy)) {
+      if (!Ember.isEmpty(storageSettings.rowFormat.linesTerminatedBy)) {
         parameters['line.delim'] = String.fromCharCode(storageSettings.rowFormat.linesTerminatedBy.id);
         addParameters = true;
       }
 
-      if(!Ember.isEmpty(storageSettings.rowFormat.nullDefinedAs)) {
+      if (!Ember.isEmpty(storageSettings.rowFormat.nullDefinedAs)) {
         parameters['serialization.null.format'] = String.fromCharCode(storageSettings.rowFormat.fieldTerminatedBy.id);
         addParameters = true;
       }
 
-      if(!Ember.isEmpty(storageSettings.rowFormat.escapeDefinedAs)) {
+      if (!Ember.isEmpty(storageSettings.rowFormat.escapeDefinedAs)) {
         parameters['escape.delim'] = String.fromCharCode(storageSettings.rowFormat.linesTerminatedBy.id);
         addParameters = true;
       }
 
-      if(addParameters) {
+      if (addParameters) {
         storageInfo.parameters = parameters;
       }
     }
@@ -106,7 +112,19 @@ export default Ember.Service.extend({
   },
 
   _getColumns(settings) {
-    return settings.columns.map((column) => {
+    return settings.columns.filterBy('isPartitioned', false).map((column) => {
+      return {
+        name: column.get('name'),
+        type: column.get('type.label'),
+        comment: column.get('comment'),
+        precision: column.get('precision'),
+        scale: column.get('scale')
+      }
+    });
+  },
+
+  _getPartitionColumns(settings) {
+    return settings.columns.filterBy('isPartitioned', true).map((column) => {
       return {
         name: column.get('name'),
         type: column.get('type.label'),

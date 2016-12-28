@@ -6,10 +6,30 @@
     </div>
   </div>
   <div class="panel-body">
-    <div class="checkbox">
-      <label>
-        {{input type="checkbox" checked=settings.transactional}} Transactional
-      </label>
+    <div class="form-horizontal">
+      <div class="form-group">
+        <label class="col-md-2 control-label">Transactional</label>
+        <div class="col-md-4">
+          <label>
+            {{input type="checkbox" checked=settings.transactional}}
+          </label>
+        </div>
+      </div>
+
+      {{#if shouldAddBuckets}}
+        <div class="form-group">
+          <label class="col-md-2 control-label">Number of buckets</label>
+          <div class="col-md-6">
+            <div class="{{if hasNumBucketError 'has-error'}}">
+
+              {{input type="number" class="form-control" value=settings.numBuckets}}
+              {{#if hasNumBucketError}}
+                <span class="help-block">{{numBucketErrorText}}</span>
+              {{/if}}
+            </div>
+          </div>
+        </div>
+      {{/if}}
     </div>
   </div>
 

@@ -1,4 +1,5 @@
 import Ember from 'ember';
+import Helper from '../configs/helpers';
 
 export default Ember.Component.extend({
   init() {
@@ -6,6 +7,8 @@ export default Ember.Component.extend({
     this.set('columns', Ember.A());
     this.set('properties', []);
     this.set('settings', {});
+    this.set('shouldAddBuckets', null);
+    this.set('settingErrors', []);
   },
 
   didReceiveAttrs() {
@@ -43,6 +46,11 @@ export default Ember.Component.extend({
       this.checkColumnUniqueness() &&
       this.validateColumns())) {
       this.selectTab("create.table.columns");
+      return false;
+    }
+
+    if(!(this.validateNumBuckets())) {
+      this.selectTab("create.table.advanced");
       return false;
     }
 
@@ -109,6 +117,18 @@ export default Ember.Component.extend({
         return false;
       }
     }
+    return true;
+  },
+
+  validateNumBuckets() {
+    let clusteredColumns = this.get('columns').filterBy('isClustered', true);
+    if(clusteredColumns.get('length') > 0 &&
+      (Ember.isEmpty(this.get('settings.numBuckets')) ||
+      !Helper.isInteger(this.get('settings.numBuckets')))) {
+      this.get('settingErrors').pushObject({type: 'numBuckets', error: "Some columns are clustered, Number of buckets are required."});
+      return false;
+    }
+
     return true;
   },
 

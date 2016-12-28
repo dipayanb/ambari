@@ -9,8 +9,18 @@ export default Ember.Component.extend({
   showLocationInput: false,
   showFileFormatInput: false,
   showRowFormatInput: false,
+  shouldAddBuckets: false,
+  errors: [],
 
   settings: {},
+
+  errorsObserver: Ember.observer('errors.@each', function() {
+    let numBucketsError = this.get('errors').findBy('type', 'numBuckets');
+    if(!Ember.isEmpty(numBucketsError)) {
+      this.set('hasNumBucketError', true);
+      this.set('numBucketErrorText', numBucketsError.error);
+    }
+  }).on('init'),
 
 
   fileFormats: Ember.copy(fileFormats),
@@ -27,6 +37,11 @@ export default Ember.Component.extend({
       let currentFileFormat = this.get('fileFormats').findBy('name', this.get('settings.fileFormat.type'));
       this.set('selectedFileFormat', currentFileFormat);
       this.set('customFileFormat', currentFileFormat.custom);
+    } else {
+      let defaultFileFormat = this.get('fileFormats').findBy('default', true);
+      this.set('settings.fileFormat', {});
+      debugger;
+      this.set('settings.fileFormat.type', defaultFileFormat.name);
     }
     if (!Ember.isEmpty(this.get('settings.rowFormat'))) {
       this.set('showRowFormatInput', true);
@@ -47,7 +62,6 @@ export default Ember.Component.extend({
     if (!this.get('showFileFormatInput')) {
       this.set('settings.fileFormat');
     } else {
-      this.set('settings.fileFormat', {});
       this.set('selectedFileFormat', this.get('fileFormats').findBy('default', true));
     }
   }),

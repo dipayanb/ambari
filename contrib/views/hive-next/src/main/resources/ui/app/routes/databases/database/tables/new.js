@@ -16,6 +16,7 @@ export default Ember.Route.extend({
     },
 
     create(settings) {
+      debugger;
       this.controller.set('showCreateTableModal', true);
       this.controller.set('createTableMessage', 'Submitting request to create table');
       let databaseModel = this.controllerFor('databases.database').get('model');

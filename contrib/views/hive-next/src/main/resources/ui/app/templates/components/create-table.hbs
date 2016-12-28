@@ -26,13 +26,13 @@
               {{emptyColumnsErrorText}}
             </div>
           {{/if}}
-          {{table-columns columns=columns}}
+          {{table-columns columns=columns shouldAddBuckets=shouldAddBuckets}}
         {{/if}}
         {{#if (eq tab.link "create.table.properties")}}
           {{table-properties properties=properties}}
         {{/if}}
         {{#if (eq tab.link "create.table.advanced")}}
-          {{table-advanced-settings settings=settings}}
+          {{table-advanced-settings settings=settings shouldAddBuckets=shouldAddBuckets errors=settingErrors}}
         {{/if}}
       {{/if}}
     {{/each}}
