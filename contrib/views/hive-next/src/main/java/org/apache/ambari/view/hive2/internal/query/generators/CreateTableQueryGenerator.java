@@ -29,6 +29,7 @@ import org.apache.ambari.view.hive2.internal.dto.TableMeta;
 
 import javax.annotation.Nullable;
 import java.util.List;
+import java.util.Map;
 
 public class CreateTableQueryGenerator implements QueryGenerator{
   private static final String COMMENT = "COMMENT";

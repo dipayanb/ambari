@@ -40,6 +40,7 @@ import org.apache.ambari.view.hive2.internal.dto.TableInfo;
 import org.apache.ambari.view.hive2.internal.dto.TableMeta;
 import org.apache.ambari.view.hive2.internal.dto.TableResponse;
 import org.apache.ambari.view.hive2.internal.parsers.TableMetaParserImpl;
+import org.apache.ambari.view.hive2.internal.query.generators.AlterTableQueryGenerator;
 import org.apache.ambari.view.hive2.internal.query.generators.CreateTableQueryGenerator;
 import org.apache.ambari.view.hive2.internal.query.generators.DeleteTableQueryGenerator;
 import org.apache.ambari.view.hive2.resources.jobs.JobServiceInternal;
@@ -262,6 +263,40 @@ public class DDLProxy {
       return deleteTableQuery.get();
     }else{
       throw new ServiceException("Failed to generate query for delete table " + databaseName + "." + tableName);
+    }
+  }
+
+  public Job alterTable(ViewContext context, ConnectionConfig hiveConnectionConfig, String databaseName, String oldTableName, TableMeta newTableMeta, JobResourceManager resourceManager) throws ServiceException {
+    String alterQuery = generateAlterTableQuery(context, hiveConnectionConfig, databaseName, oldTableName, newTableMeta);
+    Map jobInfo = new HashMap<>();
+    jobInfo.put("title", "Alter table " + databaseName + "." + oldTableName);
+    jobInfo.put("forcedContent", alterQuery);
+    jobInfo.put("dataBase", databaseName);
+
+    try {
+      Job job = new JobImpl(jobInfo);
+      JobController createdJobController = new JobServiceInternal().createJob(job, resourceManager);
+      Job returnableJob = createdJobController.getJobPOJO();
+      LOG.info("returning job with id {} for alter table {}", returnableJob.getId(), oldTableName);
+      return returnableJob;
+    } catch (Throwable e) {
+      LOG.error("Exception occurred while creating the table for create Query : {}", alterQuery, e);
+      throw new ServiceException(e);
+    }
+  }
+
+  public String generateAlterTableQuery(ViewContext context, ConnectionConfig hiveConnectionConfig, String databaseName, String oldTableName, TableMeta newTableMeta) throws ServiceException {
+    TableMeta oldTableMeta = this.getTableProperties(context, hiveConnectionConfig, databaseName, oldTableName);
+    return generateAlterTableQuery(oldTableMeta, newTableMeta);
+  }
+
+  public String generateAlterTableQuery(TableMeta oldTableMeta, TableMeta newTableMeta) throws ServiceException {
+    AlterTableQueryGenerator queryGenerator = new AlterTableQueryGenerator(oldTableMeta, newTableMeta);
+    Optional<String> alterQuery = queryGenerator.getQuery();
+    if(alterQuery.isPresent()){
+      return alterQuery.get();
+    }else{
+      throw new ServiceException("Failed to generate alter table query for table " + oldTableMeta.getDatabase() + "." + oldTableMeta.getTable());
     }
   }
 }

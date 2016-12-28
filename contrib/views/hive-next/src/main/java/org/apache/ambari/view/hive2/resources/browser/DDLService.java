@@ -37,6 +37,7 @@ import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
+import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
@@ -129,7 +130,7 @@ public class DDLService extends BaseService {
       if (queryType.equals(CREATE_TABLE)) {
         query = proxy.generateCreateTableDDL(request.tableInfo.getDatabase(), request.tableInfo);
       }else if(queryType.equals(ALTER_TABLE)){
-        // TODO : TBD when alter table is committed.
+        query = proxy.generateAlterTableQuery(context, getHiveConnectionConfig(), request.tableInfo.getDatabase(), request.tableInfo.getTable(), request.tableInfo);
       }else{
         throw new ServiceException("query_type = '" + queryType + "' is not supported");
       }
@@ -151,6 +152,30 @@ public class DDLService extends BaseService {
     JSONObject response = new JSONObject();
     response.put("table", table);
     return Response.ok(response).build();
+  }
+
+  /**
+   *
+   * @param databaseName
+   * @param oldTableName : this is required in case if the name of table itself is changed in tableMeta
+   * @param tableMetaRequest
+   * @return
+   */
+  @PUT
+  @Path("databases/{database_id}/tables/{table_id}")
+  @Produces(MediaType.APPLICATION_JSON)
+  @Consumes(MediaType.APPLICATION_JSON)
+  public Response alterTable(@PathParam("database_id") String databaseName, @PathParam("table_id") String oldTableName, TableMetaRequest tableMetaRequest) {
+    try {
+      ConnectionConfig hiveConnectionConfig = getHiveConnectionConfig();
+      Job job = proxy.alterTable(context, hiveConnectionConfig, databaseName, oldTableName, tableMetaRequest.tableInfo, getResourceManager());
+      JSONObject response = new JSONObject();
+      response.put("job", job);
+      return Response.status(Response.Status.ACCEPTED).entity(job).build();
+    } catch (ServiceException e) {
+      LOG.error("Exception occurred while creatint table for db {} with details : {}", databaseName, tableMetaRequest.tableInfo, e);
+      throw new ServiceFormattedException(e);
+    }
   }
 
   @DELETE
