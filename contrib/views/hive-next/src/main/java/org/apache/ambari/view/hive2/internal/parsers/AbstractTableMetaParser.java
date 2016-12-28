@@ -24,6 +24,7 @@ import org.apache.ambari.view.hive2.client.Row;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -53,7 +54,7 @@ public abstract class AbstractTableMetaParser<T> implements TableMetaSectionPars
     boolean startMarkerAndEndMarkerIsSame = !(sectionStartMarker == null || sectionEndMarker == null) && sectionStartMarker.equalsIgnoreCase(sectionEndMarker);
     boolean sectionDataReached = false;
 
-    Map<String, Object> result = new HashMap<>();
+    Map<String, Object> result = new LinkedHashMap<>();
 
     Iterator<Row> iterator = rows.iterator();
 
