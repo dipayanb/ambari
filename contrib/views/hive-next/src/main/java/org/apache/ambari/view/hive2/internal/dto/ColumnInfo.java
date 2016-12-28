@@ -25,6 +25,7 @@ import org.apache.commons.lang3.builder.EqualsBuilder;
  */
 public class ColumnInfo {
   private String name;
+  // TODO : to be broken into datatype + precision + scale for better comparison
   private String type;
   private Integer precision;
   private Integer scale;

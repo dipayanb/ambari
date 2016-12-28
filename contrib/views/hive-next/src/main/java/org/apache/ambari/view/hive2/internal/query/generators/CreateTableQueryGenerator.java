@@ -20,6 +20,7 @@ package org.apache.ambari.view.hive2.internal.query.generators;
 
 import com.google.common.base.Function;
 import com.google.common.base.Joiner;
+import com.google.common.base.Optional;
 import com.google.common.base.Strings;
 import com.google.common.collect.FluentIterable;
 import org.apache.ambari.view.hive2.internal.dto.ColumnInfo;
@@ -27,9 +28,7 @@ import org.apache.ambari.view.hive2.internal.dto.ColumnOrder;
 import org.apache.ambari.view.hive2.internal.dto.TableMeta;
 
 import javax.annotation.Nullable;
-import java.util.Collection;
 import java.util.List;
-import java.util.Map;
 
 public class CreateTableQueryGenerator implements QueryGenerator{
   private static final String COMMENT = "COMMENT";
@@ -45,7 +44,7 @@ public class CreateTableQueryGenerator implements QueryGenerator{
   }
 
   @Override
-  public String getQuery(){
+  public Optional<String> getQuery(){
     StringBuffer query = new StringBuffer();
     query.append("CREATE TABLE ");
     query.append(tableMeta.getDatabase()).append(".");
@@ -63,10 +62,10 @@ public class CreateTableQueryGenerator implements QueryGenerator{
       }
     }
     if(null != tableMeta.getStorageInfo()) {
-      if (!isNullOrEmpty(tableMeta.getStorageInfo().getBucketCols())) {
+      if (!QueryGenerationUtils.isNullOrEmpty(tableMeta.getStorageInfo().getBucketCols())) {
         query.append(" CLUSTERED BY (").append(Joiner.on(",").join(tableMeta.getStorageInfo().getBucketCols())).append(")");
       }
-      if (!isNullOrEmpty(tableMeta.getStorageInfo().getSortCols())) {
+      if (!QueryGenerationUtils.isNullOrEmpty(tableMeta.getStorageInfo().getSortCols())) {
         query.append(" SORTED BY (").append(getSortColQuery(tableMeta.getStorageInfo().getSortCols())).append(")");
       }
       if (!Strings.isNullOrEmpty(tableMeta.getStorageInfo().getNumBuckets())) {
@@ -127,25 +126,14 @@ public class CreateTableQueryGenerator implements QueryGenerator{
         query.append(" LOCATION '").append(tableMeta.getDetailedInfo().getLocation()).append("'");
       }
 
-      if (null != tableMeta.getDetailedInfo().getParameters() && !tableMeta.getDetailedInfo().getParameters().isEmpty()) {
-        List<String> props = FluentIterable.from(tableMeta.getDetailedInfo().getParameters().entrySet())
-          .transform(new Function<Map.Entry<String, String>, String>() {
-            @Nullable
-            @Override
-            public String apply(@Nullable Map.Entry<String, String> entry) {
-              return "'" + entry.getKey() + "'='" + entry.getValue() + "'";
-            }
-          }).toList();
+      if (QueryGenerationUtils.isNullOrEmpty(tableMeta.getDetailedInfo().getParameters())) {
+        String props = QueryGenerationUtils.getPropertiesAsKeyValues(tableMeta.getDetailedInfo().getParameters());
 
-        query.append(" TBLPROPERTIES (").append(Joiner.on(",").join(props)).append(")");
+        query.append(" TBLPROPERTIES (").append(props).append(")");
       }
     }
 
-    return query.toString();
-  }
-
-  private boolean isNullOrEmpty(Collection collection) {
-    return null == collection || collection.isEmpty();
+    return Optional.of(query.toString());
   }
 
   private boolean isNullOrEmpty(Map map) {

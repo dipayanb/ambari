@@ -204,13 +204,17 @@ public class DDLProxy {
     return infos;
   }
 
-  public String generateCreateTableDDL(String databaseName, TableMeta tableMeta) {
+  public String generateCreateTableDDL(String databaseName, TableMeta tableMeta) throws ServiceException {
     if (Strings.isNullOrEmpty(tableMeta.getDatabase())) {
       tableMeta.setDatabase(databaseName);
     }
-    String createTableQuery = new CreateTableQueryGenerator(tableMeta).getQuery();
-    LOG.info("generated create table query : {}", createTableQuery);
-    return createTableQuery;
+    Optional<String> createTableQuery = new CreateTableQueryGenerator(tableMeta).getQuery();
+    if(createTableQuery.isPresent()) {
+      LOG.info("generated create table query : {}", createTableQuery);
+      return createTableQuery.get();
+    }else {
+      throw new ServiceException("could not generate create table query for database : " + databaseName + " table : " + tableMeta.getTable());
+    }
   }
 
   public Job createTable(String databaseName, TableMeta tableMeta, JobResourceManager resourceManager) throws ServiceException {
@@ -252,8 +256,12 @@ public class DDLProxy {
   }
 
   public String generateDeleteTableDDL(String databaseName, String tableName) throws ServiceException {
-    String deleteTableQuery = new DeleteTableQueryGenerator(databaseName, tableName).getQuery();
-    LOG.info("deleting table {} with query {}", databaseName + "." + tableName, deleteTableQuery);
-    return deleteTableQuery;
+    Optional<String> deleteTableQuery = new DeleteTableQueryGenerator(databaseName, tableName).getQuery();
+    if(deleteTableQuery.isPresent()) {
+      LOG.info("deleting table {} with query {}", databaseName + "." + tableName, deleteTableQuery);
+      return deleteTableQuery.get();
+    }else{
+      throw new ServiceException("Failed to generate query for delete table " + databaseName + "." + tableName);
+    }
   }
 }

@@ -18,8 +18,9 @@
 
 package org.apache.ambari.view.hive2.internal.query.generators;
 
+import com.google.common.base.Optional;
 import org.apache.ambari.view.hive2.exceptions.ServiceException;
 
 public interface QueryGenerator {
-  String getQuery() throws ServiceException;
+  Optional<String> getQuery() throws ServiceException;
 }

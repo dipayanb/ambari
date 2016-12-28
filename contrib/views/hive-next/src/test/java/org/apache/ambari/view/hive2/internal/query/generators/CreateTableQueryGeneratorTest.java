@@ -17,8 +17,10 @@
 */
 package org.apache.ambari.view.hive2.internal.query.generators;
 
+import com.google.common.base.Optional;
 import com.google.gson.Gson;
 import org.apache.ambari.view.hive2.internal.dto.TableMeta;
+import org.junit.Assert;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -92,7 +94,8 @@ public class CreateTableQueryGeneratorTest {
       "\t}\n" +
       "}";
     TableMeta tableMeta = new Gson().fromJson(json, TableMeta.class);
-    String createQuery = new CreateTableQueryGenerator(tableMeta).getQuery();
+    Optional<String> createQuery = new CreateTableQueryGenerator(tableMeta).getQuery();
     LOG.info("createQuery : {}", createQuery);
+    Assert.assertTrue(createQuery.isPresent());
   }
 }
