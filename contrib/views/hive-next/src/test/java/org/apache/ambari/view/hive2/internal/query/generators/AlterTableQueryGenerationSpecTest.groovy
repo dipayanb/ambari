@@ -17,39 +17,43 @@
 */
 
 
-package org.apache.ambari.view.hive2.internal.query.generators;
+package org.apache.ambari.view.hive2.internal.query.generators
 
 import spock.lang.Specification
 
 class AlterTableQueryGenerationSpecTest extends Specification {
-    def "pushing an element on the stack"() {
-        // blocks go here
-        setup:
-        def stack = new Stack()
-        def elem = "push me"
-
-        when:
-        stack.push(elem)
-
-        then:
-        println "inside AlterTableQueryGenerationSpecTest"
-        !stack.empty
-        stack.size() == 1
-        stack.peek() == elem
-    }
-    def "pushing again an element on the stack"() {
-        // blocks go here
-        setup:
-        def stack = new Stack()
-        def elem = "push me"
-
-        when:
-        stack.push(elem)
-
-        then:
-        println "inside AlterTableQueryGenerationSpecTest"
-        !stack.empty
-        stack.size() == 1
-        stack.peek() == elem
-    }
+//  def "alter simple table"() {
+//    // blocks go here
+//    setup:
+//    def oldTableMeta = new TableMeta()
+//    def newTableMeta = new TableMeta()
+//    def oldCols = new ArrayList<>();
+//    oldCols.add(new ColumnInfo())
+//    oldTableMeta.setColumns()
+//
+//    when:
+//    stack.push(elem)
+//
+//    then:
+//    println "inside AlterTableQueryGenerationSpecTest"
+//    !stack.empty
+//    stack.size() == 1
+//    stack.peek() == elem
+//  }
+//
+//  def "pushing again an element on the stack"() {
+//    // blocks go here
+//    setup:
+//    def stack = new Stack()
+//    def elem = "push me"
+//
+//    when:
+//    stack.push(elem)
+//
+//    then:
+//    println "inside AlterTableQueryGenerationSpecTest"
+//    !stack.empty
+//    stack.size() == 1
+//    stack.peek() == elem
+//  }
 }
