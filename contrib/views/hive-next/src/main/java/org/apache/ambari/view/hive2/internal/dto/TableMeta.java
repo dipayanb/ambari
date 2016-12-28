@@ -106,4 +106,20 @@ public class TableMeta implements Serializable{
   public void setViewInfo(ViewInfo viewInfo) {
     this.viewInfo = viewInfo;
   }
+
+  @Override
+  public String toString() {
+    final StringBuilder sb = new StringBuilder("TableMeta{");
+    sb.append("id='").append(id).append('\'');
+    sb.append(", database='").append(database).append('\'');
+    sb.append(", table='").append(table).append('\'');
+    sb.append(", columns=").append(columns);
+    sb.append(", ddl='").append(ddl).append('\'');
+    sb.append(", partitionInfo=").append(partitionInfo);
+    sb.append(", detailedInfo=").append(detailedInfo);
+    sb.append(", storageInfo=").append(storageInfo);
+    sb.append(", viewInfo=").append(viewInfo);
+    sb.append('}');
+    return sb.toString();
+  }
 }

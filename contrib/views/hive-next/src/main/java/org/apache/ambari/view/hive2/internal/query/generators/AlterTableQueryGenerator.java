@@ -21,6 +21,7 @@ package org.apache.ambari.view.hive2.internal.query.generators;
 import com.google.common.base.Function;
 import com.google.common.base.Joiner;
 import com.google.common.base.Optional;
+import com.google.common.base.Predicate;
 import com.google.common.base.Strings;
 import com.google.common.collect.FluentIterable;
 import org.apache.ambari.view.hive2.internal.dto.ColumnInfo;
@@ -64,9 +65,15 @@ public class AlterTableQueryGenerator implements QueryGenerator {
   public Optional<String> getQuery() {
     List<Optional<String>> queries = new LinkedList<>();
 
-    Optional<String> tableRenameQuery = this.generateTableRenameQuery(this.getOldMeta().getDatabase(),
-      this.getOldMeta().getTable(), this.getNewMeta().getDatabase(), this.getNewMeta().getTable());
-    queries.add(tableRenameQuery);
+    // TODO: rename of table name has to be handled separately as other queries depend on new name.
+//    Optional<String> tableRenameQuery = this.generateTableRenameQuery(this.getOldMeta().getDatabase(),
+//      this.getOldMeta().getTable(), this.getNewMeta().getDatabase(), this.getNewMeta().getTable());
+//    queries.add(tableRenameQuery);
+
+    Optional<List<Optional<String>>> columnQuery = this.generateColumnQuery();
+    if (columnQuery.isPresent()) {
+      queries.addAll(columnQuery.get());
+    }
 
     if (null != this.getNewMeta().getDetailedInfo() && null != this.getNewMeta().getDetailedInfo()) {
       Optional<String> tablePropertiesQuery = this.generateTablePropertiesQuery(this.getOldMeta().getDetailedInfo().getParameters(),
@@ -74,7 +81,7 @@ public class AlterTableQueryGenerator implements QueryGenerator {
       queries.add(tablePropertiesQuery);
     }
 
-    if (null != this.getOldMeta().getStorageInfo()) {
+    if (null != this.getOldMeta().getStorageInfo() && null != this.getNewMeta().getStorageInfo()) {
       String oldSerde = this.getOldMeta().getStorageInfo().getSerdeLibrary();
       String newSerde = this.getNewMeta().getStorageInfo().getSerdeLibrary();
       Map<String, String> oldParameters = this.getOldMeta().getStorageInfo().getParameters();
@@ -97,25 +104,20 @@ public class AlterTableQueryGenerator implements QueryGenerator {
       queries.add(storagePropertyQuery);
     }
 
-    Optional<List<Optional<String>>> columnQuery = this.generateColumnQuery();
-    if (columnQuery.isPresent()) {
-      queries.addAll(columnQuery.get());
-    }
-    final boolean[] foundChange = {false};
 
-    List<String> queryList = FluentIterable.from(queries).transform(new Function<Optional<String>, String>() {
+    List<String> queryList = FluentIterable.from(queries).filter(new Predicate<Optional<String>>() {
+      @Override
+      public boolean apply(Optional<String> input) {
+        return input.isPresent();
+      }
+    }).transform(new Function<Optional<String>, String>() {
       @Override
       public String apply(Optional<String> input) {
-        if (input.isPresent()) {
-          foundChange[0] = true;
           return input.get();
-        } else {
-          return "";
-        }
       }
     }).toList();
 
-    if (foundChange[0]) {
+    if (!queryList.isEmpty()) {
       return Optional.of(Joiner.on(";\n").join(queryList));
     } else {
       return Optional.absent();
@@ -177,9 +179,8 @@ public class AlterTableQueryGenerator implements QueryGenerator {
       if (!oldColumn.equals(newColumn)) {
         foundChange = true;
         StringBuilder queryBuilder = new StringBuilder();
-        queryBuilder.append(" CHANGE COLUMN `").append(oldColumn.getName()).append("`")
-          .append(" `").append(newColumn.getName()).append("` ").append(newColumn.getType())
-          .append(Strings.isNullOrEmpty(newColumn.getComment()) ? "" : " COMMENT \"" + newColumn.getComment() + "\"");
+        queryBuilder.append(" CHANGE COLUMN `").append(oldColumn.getName()).append("` ")
+          .append(QueryGenerationUtils.getColumnRepresentation(newColumn));
 
           if(cascade){
             queryBuilder.append(" CASCADE");
@@ -202,8 +203,7 @@ public class AlterTableQueryGenerator implements QueryGenerator {
           first = false;
         }
 
-        queryBuilder.append("`").append(columnInfo.getName()).append("` ").append(columnInfo.getType())
-          .append(Strings.isNullOrEmpty(columnInfo.getComment()) ? "" : " COMMENT \"" + columnInfo.getComment() + "\"");
+        queryBuilder.append(QueryGenerationUtils.getColumnRepresentation(columnInfo));
       }
       queryBuilder.append(" )");
 
@@ -316,7 +316,7 @@ public class AlterTableQueryGenerator implements QueryGenerator {
     }
 
     if (!query.trim().isEmpty()) {
-      Optional.of(query);
+      return Optional.of(query);
     }
 
     return Optional.absent();
@@ -333,9 +333,9 @@ public class AlterTableQueryGenerator implements QueryGenerator {
     if (null == newProps) {
       newProps = new HashMap();
     }
-
+// TODO ignore system generated table properties during comparison
     if (!QueryGenerationUtils.isEqual(oldProps, newProps)) {
-      return Optional.of(" SET TBLPROPERTIES " + QueryGenerationUtils.getPropertiesAsKeyValues(newProps));
+      return Optional.of(" SET TBLPROPERTIES (" + QueryGenerationUtils.getPropertiesAsKeyValues(newProps) + ")");
     }
 
     return Optional.absent();

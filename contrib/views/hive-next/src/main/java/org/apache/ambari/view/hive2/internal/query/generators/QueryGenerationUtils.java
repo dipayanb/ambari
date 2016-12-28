@@ -21,7 +21,9 @@ package org.apache.ambari.view.hive2.internal.query.generators;
 import com.google.common.base.Function;
 import com.google.common.base.Joiner;
 import com.google.common.base.Optional;
+import com.google.common.base.Strings;
 import com.google.common.collect.FluentIterable;
+import org.apache.ambari.view.hive2.internal.dto.ColumnInfo;
 
 import javax.annotation.Nullable;
 import java.util.Collection;
@@ -124,5 +126,26 @@ public class QueryGenerationUtils {
             }).toList();
 
     return Joiner.on(",").join(props);
+  }
+
+  public static String getColumnRepresentation(ColumnInfo column) {
+    StringBuilder colQuery = new StringBuilder().append("`").append(column.getName()).append("`");
+    colQuery.append(" ").append(column.getType());
+    if(!QueryGenerationUtils.isNullOrZero(column.getPrecision())){
+      if(!QueryGenerationUtils.isNullOrZero(column.getScale())){
+        colQuery.append("(").append(column.getPrecision()).append(",").append(column.getScale()).append(")");
+      }else{
+        colQuery.append("(").append(column.getPrecision()).append(")");
+      }
+    }
+    if(!Strings.isNullOrEmpty(column.getComment())) {
+      colQuery.append(" COMMENT '").append(column.getComment()).append("'");
+    }
+
+    return colQuery.toString();
+  }
+
+  public static boolean isNullOrZero(Integer integer) {
+    return null == integer || 0 == integer;
   }
 }

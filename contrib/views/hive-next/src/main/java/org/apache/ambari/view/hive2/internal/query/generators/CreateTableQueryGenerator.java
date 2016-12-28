@@ -107,12 +107,10 @@ public class CreateTableQueryGenerator implements QueryGenerator{
       // STORED AS file_format
       if(!Strings.isNullOrEmpty(tableMeta.getStorageInfo().getFileFormat()) && !tableMeta.getStorageInfo().getFileFormat().trim().isEmpty()){
         query.append(" STORED AS ").append(tableMeta.getStorageInfo().getFileFormat().trim());
-      }
-
-      if (!Strings.isNullOrEmpty(tableMeta.getStorageInfo().getInputFormat()) ||
+      }else if (!Strings.isNullOrEmpty(tableMeta.getStorageInfo().getInputFormat()) ||
         !Strings.isNullOrEmpty(tableMeta.getStorageInfo().getOutputFormat())
         ) {
-        query.append(" STORED BY ");
+        query.append(" STORED AS ");
         if (!Strings.isNullOrEmpty(tableMeta.getStorageInfo().getInputFormat())) {
           query.append(" INPUTFORMAT '").append(tableMeta.getStorageInfo().getInputFormat()).append("'");
         }
@@ -157,27 +155,11 @@ public class CreateTableQueryGenerator implements QueryGenerator{
       @Nullable
       @Override
       public String apply(@Nullable ColumnInfo column) {
-        StringBuilder colQuery = new StringBuilder(column.getName());
-        colQuery.append(" ").append(column.getType());
-        if(!isNullOrZero(column.getPrecision())){
-          if(!isNullOrZero(column.getScale())){
-            colQuery.append("(").append(column.getPrecision()).append(",").append(column.getScale()).append(")");
-          }else{
-            colQuery.append("(").append(column.getPrecision()).append(")");
-          }
-        }
-        if(!Strings.isNullOrEmpty(column.getComment())) {
-          colQuery.append(" COMMENT '").append(column.getComment()).append("'");
-        }
-
-        return colQuery.toString();
+        return QueryGenerationUtils.getColumnRepresentation(column);
       }
     }).toList();
 
     return Joiner.on(",").join(columnQuery);
   }
 
-  public static boolean isNullOrZero(Integer integer) {
-    return null == integer || 0 == integer;
-  }
 }
