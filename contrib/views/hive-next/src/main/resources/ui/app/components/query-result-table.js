@@ -5,46 +5,62 @@ import TableCommon from '../mixins/table-common';
 export default Ember.Component.extend({
 
   classNames: ['query-result-table', 'clearfix'],
-  model: [{firstName: 'Ram'},{firstName: 'Shyam'},{firstName: 'Mohan'},{firstName: 'Ram'},{firstName: 'Shyam'},{firstName: 'Mohan'},{firstName: 'Ram'},{firstName: 'Shyam'},{firstName: 'Mohan'},{firstName: 'Ram'},{firstName: 'Shyam'},{firstName: 'Mohan'},{firstName: 'Ram'},{firstName: 'Shyam'},{firstName: 'Mohan'},{firstName: 'Ram'},{firstName: 'Shyam'},{firstName: 'Mohan'},{firstName: 'Ram'},{firstName: 'Shyam'},{firstName: 'Mohan'},{firstName: 'Ram'},{firstName: 'Shyam'},{firstName: 'Mohan'},{firstName: 'Ram'},{firstName: 'Shyam'},{firstName: 'Mohan'},{firstName: 'Ram'},{firstName: 'Shyam'},{firstName: 'Mohan'},{firstName: 'Ram'},{firstName: 'Shyam'},{firstName: 'Mohan'},{firstName: 'Ram'},{firstName: 'Shyam'},{firstName: 'Mohan'},{firstName: 'Ram'},{firstName: 'Shyam'},{firstName: 'Mohan'},{firstName: 'Ram'},{firstName: 'Shyam'},{firstName: 'Mohan'},{firstName: 'Ram'},{firstName: 'Shyam'},{firstName: 'Mohan'},{firstName: 'Ram'},{firstName: 'Shyam'},{firstName: 'Mohan'},{firstName: 'Ram'},{firstName: 'Shyam'},{firstName: 'Mohan'},{firstName: 'Ram'},{firstName: 'Shyam'},{firstName: 'Mohan'},{firstName: 'Ram'},{firstName: 'Shyam'},{firstName: 'Mohan'},{firstName: 'Ram'},{firstName: 'Shyam'},{firstName: 'Mohan'},{firstName: 'Ram'},{firstName: 'Shyam'},{firstName: 'Mohan'},{firstName: 'Ram'},{firstName: 'Shyam'},{firstName: 'Mohan'},{firstName: 'Ram'},{firstName: 'Shyam'},{firstName: 'Mohan'},{firstName: 'Ram'},{firstName: 'Shyam'},{firstName: 'Mohan'},{firstName: 'Ram'},{firstName: 'Shyam'},{firstName: 'Mohan'}],
 
-  columns: Ember.computed(function() {
-    return [
-      {
-      label: 'First Name',
-      valuePath: 'firstName',
-      }
-    ];
+  queryResult: {'schema' :[], 'rows' :[]},
 
-    /*
-    return [{
-      label: 'Avatar',
-      valuePath: 'avatar',
+  columns: Ember.computed('queryResult', function() {
+    let queryResult = this.get('queryResult');
+    let columnArr =[];
 
-      sortable: false,
-      cellComponent: 'user-avatar'
-    }, {
-      label: 'First Name',
-      valuePath: 'firstName',
-    }, {
-      label: 'Last Name',
-      valuePath: 'lastName',
-    }];
-    */
+    this.get('queryResult').schema.forEach(function(column){
+      let tempColumn = {};
 
+      tempColumn['label'] = column[0];
+
+      let localValuePath = column[0];
+      tempColumn['valuePath'] = localValuePath.substring(localValuePath.lastIndexOf('.') +1 , localValuePath.length);
+
+      columnArr.push(tempColumn);
+    });
+    return columnArr;
   }),
 
-  table: Ember.computed('model', function() {
-    return new Table(this.get('columns'), this.get('model'));
+  rows: Ember.computed('queryResult','columns', function() {
+    let rowArr = [], self = this;
+
+    if(self.get('columns').length > 0) {
+      self.get('queryResult').rows.forEach(function(row, rowindex){
+        var mylocalObject = {};
+        self.get('columns').forEach(function(column, index){
+          mylocalObject[self.get('columns')[index].valuePath] = row[index];
+        })
+        rowArr.push(mylocalObject);
+      });
+      return rowArr;
+    }
+    return rowArr;
+  }),
+
+  table: Ember.computed('queryResult', 'rows', 'columns', function() {
+    return new Table(this.get('columns'), this.get('rows'));
   }),
 
   actions: {
     onScrolledToBottom() {
-      console.log('I am in onScrolledToBottom');
+      //this.send('goNextPage');
+      console.log('hook for INFINITE scroll');
     },
 
     onColumnClick(column) {
       console.log('I am in onColumnClick');
+    },
+    goNextPage(){
+      this.sendAction('goNextPage');
+    },
+    goPrevPage(){
+      this.sendAction('goPrevPage');
     }
+
   }
 
 });

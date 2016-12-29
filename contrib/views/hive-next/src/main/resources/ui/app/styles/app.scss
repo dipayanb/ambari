@@ -23,6 +23,10 @@
   height: 100%;
 }
 
+.fa-2 {
+  font-size: 2em;
+}
+
 $database-search-background: lighten($body-bg, 10%);
 $database-search-text-color: $gray;
 .database-search, .multiple-database-search {
@@ -242,6 +246,7 @@ pre {
 .create-table-inner {
   //min-height: 400px;
 }
+
 .create-table-controls {
   padding-top: 15px;
   padding-bottom: 15px;
@@ -257,8 +262,13 @@ pre {
 }
 
 .query-editor {
-  border-right: 1px solid darken($database-search-background, 25%);
+  border: 1px solid darken($database-search-background, 25%);
   margin-right: 0;
+}
+
+.query-editor-controls {
+  padding-top: 15px;
+  padding-bottom: 15px;
 }
 
 .database-panel{

@@ -1,24 +1,35 @@
-{{#light-table table height='35vh' as |t|}}
-
-  {{t.head
-  onColumnClick=(action 'onColumnClick')
-  iconAscending='fa fa-sort-asc'
-  iconDescending='fa fa-sort-desc'
-  fixed=true
-  }}
-
-  {{#t.body
-  canSelect=false
-  onScrolledToBottom=(action 'onScrolledToBottom')
-  as |body|
-  }}
-    {{#if isLoading}}
-      {{#body.loader}}
-        {{table-loader}}
-      {{/body.loader}}
+{{#if columns.length}}
+  <div class="clearfix" style="text-align: right">
+    {{#if showPreviousButton}}
+        <button class="btn btn-success" {{action "goPrevPage" }}>{{fa-icon "arrow-left"}} </button>
     {{/if}}
-  {{/t.body}}
+    <button class="btn btn-success" {{action "goNextPage" }}>{{fa-icon "arrow-right"}} </button>
+  </div>
+{{/if}}
 
+<div class="clearfix">
+{{#light-table table height='65vh' as |t|}}
+  {{#if columns.length}}
+      {{t.head
+      onColumnClick=(action 'onColumnClick')
+      iconAscending='fa fa-sort-asc'
+      iconDescending='fa fa-sort-desc'
+      fixed=true
+      }}
+
+      {{#t.body
+      canSelect=false
+      onScrolledToBottom=(action 'onScrolledToBottom')
+      as |body|
+      }}
+        {{#if isLoading}}
+          {{#body.loader}}
+            {{table-loader}}
+          {{/body.loader}}
+        {{/if}}
+      {{/t.body}}
+  {{/if}}
 {{/light-table}}
+</div>
 
 {{yield}}
