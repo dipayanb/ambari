@@ -1,10 +1,10 @@
+import Ember from 'ember';
 import ApplicationAdapter from './application';
 
 export default ApplicationAdapter.extend({
 
   buildURL(){
-    //Change this endpoint.
-    return 'http://localhost:4200/jobs/';
+    return this._super(...arguments) + '/jobs/';
   },
 
   createJob(payload) {
