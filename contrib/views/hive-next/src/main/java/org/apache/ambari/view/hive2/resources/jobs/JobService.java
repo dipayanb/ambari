@@ -469,7 +469,7 @@ public class JobService extends BaseService {
    */
   @GET
   @Produces(MediaType.APPLICATION_JSON)
-  public List<Job> getList(@QueryParam("startTime") long startTime, @QueryParam("endTime") long endTime) {
+  public Response getList(@QueryParam("startTime") long startTime, @QueryParam("endTime") long endTime) {
     try {
 
       LOG.debug("Getting all job: startTime: {}, endTime: {}",startTime,endTime);
@@ -477,8 +477,9 @@ public class JobService extends BaseService {
       for(Job job : allJobs) {
         job.setSessionTag(null);
       }
-
-      return allJobs;
+      JSONObject result = new JSONObject();
+      result.put("jobs", allJobs);
+      return Response.ok(result).build();
     } catch (WebApplicationException ex) {
       LOG.error("Exception occured while fetching all jobs.", ex);
       throw ex;

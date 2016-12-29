@@ -1,0 +1,44 @@
+<div class="row jobs-status">
+  <div class="col-md-12 ">
+    <div class="col-md-9">
+      <div class="strip">
+        <ul class="list-inline">
+          {{#each-in statusCounts as |status count|}}
+            <li>{{count}} <span class="text-uppercase">{{status}}</span></li>
+          {{/each-in}}
+        </ul>
+      </div>
+    </div>
+    <div class="col-md-3">
+      {{date-range-picker
+        start=startTime
+        end=endTime
+        opens="left"
+        applyAction=(action "setDateRange")
+      }}
+    </div>
+  </div>
+
+</div>
+
+<div class="row jobs-table">
+  <div class="col-md-12">
+    <table class="table table-striped">
+      <thead>
+        <tr>
+          <th width="10%">Job Id</th>
+          <th width="30%">Title <span class="pull-right">Dipayan</span> </th>
+          <th width="10%">status</th>
+          <th width="25%">Start time</th>
+          <th width="20%" >Duration</th>
+          <th>Action</th>
+        </tr>
+      </thead>
+      <tbody>
+        {{#each jobs as |job| }}
+          {{job-item job=job}}
+        {{/each}}
+      </tbody>
+    </table>
+  </div>
+</div>

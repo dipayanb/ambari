@@ -52,4 +52,5 @@ export default DS.Model.extend({
 
     return status ? status.toUpperCase() : status;
   }.property('status')
+
 });

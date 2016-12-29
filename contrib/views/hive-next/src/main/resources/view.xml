@@ -282,7 +282,7 @@
     </resource>
 
     <resource>
-        <name>file</name>
+        <name>files</name>
         <service-class>org.apache.ambari.view.hive2.resources.files.FileService</service-class>
     </resource>
 
@@ -319,7 +319,7 @@
     </resource>
 
     <resource>
-        <name>files</name>
+        <name>directories</name>
         <service-class>org.apache.ambari.view.hive2.resources.browser.FileService</service-class>
     </resource>
 
