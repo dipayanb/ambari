@@ -54,7 +54,7 @@ public class AlterTableQueryGeneratorTest {
     List<String> queries = query.get();
 
     Assert.assertEquals("Expected number of column update queries were different.", 3, queries.size());
-    String[] expectedQueries = new String[]{" CHANGE COLUMN `col1` `col4` VARCHAR(10) COMMENT \"COMMENT 4\"", " CHANGE COLUMN `col2` `col5` STRING COMMENT \"COMMENT 5\"", " CHANGE COLUMN `col3` `col6` INT"};
+    String[] expectedQueries = new String[]{" CHANGE COLUMN `col1` `col4` VARCHAR(10) COMMENT \'COMMENT 4\'", " CHANGE COLUMN `col2` `col5` STRING COMMENT \'COMMENT 5\'", " CHANGE COLUMN `col3` `col6` INT"};
 
     Assert.assertArrayEquals("Column change queries were not equal ", expectedQueries, queries.toArray());
   }
@@ -87,49 +87,8 @@ public class AlterTableQueryGeneratorTest {
 
     Assert.assertEquals("Expected number of column update queries were different.", 4, queries.size());
     System.out.println(queries);
-    String[] expectedQueries = new String[]{" CHANGE COLUMN `col1` `col4` VARCHAR(10) COMMENT \"COMMENT 4\"", " CHANGE COLUMN `col2` `col5` STRING COMMENT \"COMMENT 5\"", " CHANGE COLUMN `col3` `col6` INT"," ADD COLUMNS ( `col7` DATE, `col8` BOOLEAN COMMENT \"COMMENT 8\" )" };
+    String[] expectedQueries = new String[]{" CHANGE COLUMN `col1` `col4` VARCHAR(10) COMMENT \'COMMENT 4\'", " CHANGE COLUMN `col2` `col5` STRING COMMENT \'COMMENT 5\'", " CHANGE COLUMN `col3` `col6` INT"," ADD COLUMNS ( `col7` DATE, `col8` BOOLEAN COMMENT \'COMMENT 8\' )" };
 
     Assert.assertArrayEquals("Column change queries were not equal ", expectedQueries, queries.toArray());
   }
-
-  @Test
-  public void generateStoragePropertyQuery() throws Exception {
-
-  }
-
-  @Test
-  public void createStoragePropertyQuery() throws Exception {
-
-  }
-
-  @Test
-  public void generateSerdeQuery() throws Exception {
-
-  }
-
-  @Test
-  public void createSerdeQuery() throws Exception {
-
-  }
-
-  @Test
-  public void generateTablePropertiesQuery() throws Exception {
-
-  }
-
-  @Test
-  public void createTablePropertiesQuery() throws Exception {
-
-  }
-
-  @Test
-  public void generateTableRenameQuery() throws Exception {
-
-  }
-
-  @Test
-  public void createTableRenameQuery() throws Exception {
-
-  }
-
 }
